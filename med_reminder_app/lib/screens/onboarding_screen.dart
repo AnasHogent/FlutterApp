@@ -21,7 +21,7 @@ class OnboardingScreen extends StatelessWidget {
               AppAssets.onboard,
               width: double.infinity,
               height: 570.h,
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.fill,
             ),
             HeightSpace(21),
             PrimaryButtonWidget(

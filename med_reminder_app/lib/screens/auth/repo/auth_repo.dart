@@ -7,32 +7,12 @@ class AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<Either<String, String>> registerUser({
+  Future<Either<String, UserModel>> registerUser({
     required String username,
     required String email,
     required String password,
   }) async {
     try {
-      final existing =
-          await firestore
-              .collection('users')
-              .where('username', isEqualTo: username)
-              .limit(1)
-              .get();
-
-      if (existing.docs.isNotEmpty) {
-        return const Left('Username is already taken');
-      }
-      final emailExists =
-          await firestore
-              .collection('users')
-              .where('email', isEqualTo: email)
-              .limit(1)
-              .get();
-
-      if (emailExists.docs.isNotEmpty) {
-        return const Left('This email is already used');
-      }
       UserCredential user = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -44,7 +24,13 @@ class AuthRepo {
         "uid": user.user!.uid,
       });
 
-      return const Right("✔️ Account created successfully");
+      final userModel = UserModel(
+        username: username,
+        email: email,
+        uid: user.user!.uid,
+      );
+
+      return Right(userModel);
     } on FirebaseAuthException catch (e) {
       return Left(e.message ?? "Something went wrong");
     } catch (e) {
@@ -61,8 +47,6 @@ class AuthRepo {
         email: email,
         password: password,
       );
-
-      // بعد تسجيل الدخول، نجيب بيانات المستخدم من Firestore
       final userDoc =
           await firestore.collection('users').doc(user.user!.uid).get();
 

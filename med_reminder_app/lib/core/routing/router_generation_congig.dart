@@ -39,12 +39,21 @@ class RouterGenerationCongig {
       GoRoute(
         path: AppRoutes.forgetPasswordScreen,
         name: AppRoutes.forgetPasswordScreen,
-        builder: (context, state) => const ForgetPasswordScreen(),
+        builder:
+            (context, state) => BlocProvider.value(
+              value: sl<AuthCubit>(),
+              child: const ForgetPasswordScreen(),
+            ),
       ),
+
       GoRoute(
         path: AppRoutes.homeScreen,
         name: AppRoutes.homeScreen,
-        builder: (context, state) => const HomeScreen(),
+        builder:
+            (context, state) => BlocProvider.value(
+              value: sl<AuthCubit>(),
+              child: const HomeScreen(),
+            ),
       ),
     ],
   );
