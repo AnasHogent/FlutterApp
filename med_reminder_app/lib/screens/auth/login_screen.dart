@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
+import 'package:med_reminder_app/screens/auth/widgates/back_button_widgate.dart';
+import 'package:med_reminder_app/screens/auth/widgates/custom_or_login_widgate.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,27 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 HeightSpace(12),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Container(
-                    height: 41.h,
-                    width: 41.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(
-                        color: AppColors.primaryColor,
-                        width: 1,
-                      ),
-                      color: Colors.transparent,
-                    ),
-                    child: Center(
-                      child: IconButton(
-                        onPressed: () {
-                          GoRouter.of(context).pop();
-                        },
-                        icon: const Icon(Icons.arrow_back_ios_new),
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-                  ),
+                  child: BackButtonWidgate(),
                 ),
                 const HeightSpace(28),
                 SizedBox(
@@ -110,77 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const HeightSpace(22),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        height: 56.h,
-                        width: 105.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.r),
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1,
-                          ),
-                          color: Colors.transparent,
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            AppAssets.facebookSVGIcon,
-                            width: 12.w,
-                            height: 24.h,
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        height: 56.h,
-                        width: 105.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.r),
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1,
-                          ),
-                          color: Colors.transparent,
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            AppAssets.googleSVGIcon,
-                            width: 12.w,
-                            height: 24.h,
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        height: 56.h,
-                        width: 105.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.r),
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1,
-                          ),
-                          color: Colors.transparent,
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            AppAssets.appleSVGIcon,
-                            width: 12.w,
-                            height: 24.h,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                const CustomOrLoginWidgate(),
                 const HeightSpace(120),
                 Center(
                   child: RichText(
