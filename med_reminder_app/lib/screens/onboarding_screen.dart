@@ -14,39 +14,41 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Image.asset(
-            AppAssets.onboard,
-            width: double.infinity,
-            height: 570.h,
-            fit: BoxFit.fitWidth,
-          ),
-          HeightSpace(21),
-          PrimaryButtonWidget(
-            onPressed: () {
-              GoRouter.of(context).pushNamed(AppRoutes.loginScreen);
-            },
-            buttonText: "Login",
-            width: 331.w,
-            height: 56.h,
-          ),
-          HeightSpace(15),
-          PrimaryOutlinedButtonWidget(
-            onPressed: () {},
-            buttonText: "Register",
-            width: 331.w,
-            height: 56.h,
-          ),
-          HeightSpace(46),
-          Text(
-            "Continue as a guest",
-            style: AppStyles.black15BoldStyle.copyWith(
-              color: const Color(0xFF202955),
-              decoration: TextDecoration.underline,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image.asset(
+              AppAssets.onboard,
+              width: double.infinity,
+              height: 570.h,
+              fit: BoxFit.fitWidth,
             ),
-          ),
-        ],
+            HeightSpace(21),
+            PrimaryButtonWidget(
+              onPressed: () {
+                GoRouter.of(context).pushNamed(AppRoutes.loginScreen);
+              },
+              buttonText: "Login",
+              width: 331.w,
+              height: 56.h,
+            ),
+            HeightSpace(15),
+            PrimaryOutlinedButtonWidget(
+              onPressed: () {},
+              buttonText: "Register",
+              width: 331.w,
+              height: 56.h,
+            ),
+            HeightSpace(46),
+            Text(
+              "Continue as a guest",
+              style: AppStyles.black15BoldStyle.copyWith(
+                color: const Color(0xFF202955),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
