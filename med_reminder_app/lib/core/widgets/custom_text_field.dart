@@ -19,7 +19,7 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width ?? 331.w,
-      child: TextField(
+      child: TextFormField(
         autofocus: false,
         obscureText: isPassword ?? false,
         decoration: InputDecoration(

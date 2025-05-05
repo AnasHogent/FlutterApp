@@ -7,7 +7,7 @@ class WidthSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: width ?? 20.w);
+    return SizedBox(width: width.w);
   }
 }
 
@@ -17,6 +17,6 @@ class HeightSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: height ?? 20.h);
+    return SizedBox(height: height.h);
   }
 }
