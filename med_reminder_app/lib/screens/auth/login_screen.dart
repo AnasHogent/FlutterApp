@@ -1,5 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
@@ -112,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     buttonText: "Login",
                     onPressed: () {
                       if (formKey.currentState!.validate()) {}
-                      setState(() {});
                     },
                   ),
                   HeightSpace(35),
@@ -148,6 +150,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                             ),
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap = () {
+                                    GoRouter.of(
+                                      context,
+                                    ).pushNamed(AppRoutes.registerScreen);
+                                  },
                           ),
                         ],
                       ),

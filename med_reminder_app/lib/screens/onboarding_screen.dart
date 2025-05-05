@@ -34,7 +34,9 @@ class OnboardingScreen extends StatelessWidget {
             ),
             HeightSpace(15),
             PrimaryOutlinedButtonWidget(
-              onPressed: () {},
+              onPressed: () {
+                GoRouter.of(context).pushNamed(AppRoutes.registerScreen);
+              },
               buttonText: "Register",
               width: 331.w,
               height: 56.h,
