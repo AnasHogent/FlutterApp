@@ -8,6 +8,7 @@ import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
+import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 import 'package:med_reminder_app/screens/auth/widgates/back_button_widgate.dart';
 import 'package:med_reminder_app/screens/auth/widgates/custom_or_login_widgate.dart';
 
@@ -113,8 +114,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   const HeightSpace(30),
                   PrimaryButtonWidget(
                     buttonText: "Login",
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {}
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        final result = await AuthRepo().loginUser(
+                          email: emailController.text.trim(),
+                          password: password.text.trim(),
+                        );
+                        result.fold(
+                          (error) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(error)));
+                          },
+                          (seccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("login seccess")),
+                            );
+                            GoRouter.of(
+                              context,
+                            ).pushNamed(AppRoutes.onboardingScreen);
+                          },
+                        );
+                      }
                     },
                   ),
                   HeightSpace(35),

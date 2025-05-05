@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "341663808515",
+    "project_id": "medtrack-anas",
+    "storage_bucket": "medtrack-anas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341663808515:android:7a0151b99baf4edbdce236",
+        "android_client_info": {
+          "package_name": "com.example.med_reminder_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1kJShrnIbPFaCdTyfe1Z5FoK953VSak0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

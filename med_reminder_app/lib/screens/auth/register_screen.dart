@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +9,7 @@ import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
+import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 import 'package:med_reminder_app/screens/auth/widgates/back_button_widgate.dart';
 import 'package:med_reminder_app/screens/auth/widgates/custom_or_login_widgate.dart';
 
@@ -20,10 +22,37 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   bool isPassword = true;
   final formKey = GlobalKey<FormState>();
-  late TextEditingController UsernameController;
+  late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController password;
   late TextEditingController confirmPassword;
+  Future<void> registerUser() async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: password.text.trim(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account created successfully")),
+      );
+
+      GoRouter.of(context).go('/home');
+    } on FirebaseAuthException catch (e) {
+      String errorMsg;
+      if (e.code == 'email-already-in-use') {
+        errorMsg = 'This email is already in use';
+      } else if (e.code == 'weak-password') {
+        errorMsg = 'The password is too weak';
+      } else {
+        errorMsg = e.message ?? 'Registration failed';
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMsg)));
+    }
+  }
 
   @override
   void initState() {
@@ -31,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     emailController = TextEditingController();
     password = TextEditingController();
     confirmPassword = TextEditingController();
-    UsernameController = TextEditingController();
+    usernameController = TextEditingController();
   }
 
   @override
@@ -62,7 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const HeightSpace(32),
                   CustomTextField(
                     hintText: "Username",
-                    controller: UsernameController,
+                    controller: usernameController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Enter your Username";
@@ -136,8 +165,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const HeightSpace(15),
                   PrimaryButtonWidget(
                     buttonText: "Register",
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {}
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        final result = await AuthRepo().registerUser(
+                          username: usernameController.text.trim(),
+                          email: emailController.text.trim(),
+                          password: password.text.trim(),
+                        );
+
+                        result.fold(
+                          (error) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(error)));
+                          },
+                          (successMessage) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(successMessage)),
+                            );
+                            GoRouter.of(
+                              context,
+                            ).pushNamed(AppRoutes.loginScreen);
+                          },
+                        );
+                      }
                     },
                   ),
                   HeightSpace(35),
