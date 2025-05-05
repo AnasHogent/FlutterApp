@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
@@ -8,7 +9,8 @@ import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
-import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
+import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
+import 'package:med_reminder_app/screens/auth/cubit/auth_state.dart';
 import 'package:med_reminder_app/screens/auth/widgates/back_button_widgate.dart';
 import 'package:med_reminder_app/screens/auth/widgates/custom_or_login_widgate.dart';
 
@@ -36,156 +38,165 @@ class _LoginScreenState extends State<LoginScreen> {
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HeightSpace(12),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: BackButtonWidgate(),
-                  ),
-                  const HeightSpace(28),
-                  SizedBox(
-                    width: 280.w,
-                    child: Text(
-                      "Welcome Back Again",
-                      style: AppStyles.primaryHeadLinesStyle,
-                    ),
-                  ),
-                  const HeightSpace(32),
-                  CustomTextField(
-                    hintText: "Enter Your Email",
-                    controller: emailController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter your email";
-                      }
-                      if (!RegExp(
-                        r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
-                      ).hasMatch(value)) {
-                        return "Enter a valid email address";
-                      }
-                      return null;
-                    },
-                  ),
-                  const HeightSpace(15),
-                  CustomTextField(
-                    controller: password,
-                    hintText: "Enter Your Password",
-                    isPassword: isPassword,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter your password";
-                      }
-                      if (value.length < 8) {
-                        return "Password must be at least 8 characters";
-                      }
-                      return null;
-                    },
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isPassword
-                            ? Icons.remove_red_eye_outlined
-                            : Icons.remove_red_eye,
-                        size: 25.sp,
-                        color: AppColors.primaryColor,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isPassword = !isPassword;
-                        });
-                      },
-                    ),
-                  ),
-                  const HeightSpace(15),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Forget Password?",
-                      style: AppStyles.black15BoldStyle.copyWith(
-                        color: Color(0xFF6A707C),
-                      ),
-                    ),
-                  ),
-                  const HeightSpace(30),
-                  PrimaryButtonWidget(
-                    buttonText: "Login",
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        final result = await AuthRepo().loginUser(
-                          email: emailController.text.trim(),
-                          password: password.text.trim(),
-                        );
-                        result.fold(
-                          (error) {
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(error)));
-                          },
-                          (seccess) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("login seccess")),
-                            );
-                            GoRouter.of(
-                              context,
-                            ).pushNamed(AppRoutes.onboardingScreen);
-                          },
-                        );
-                      }
-                    },
-                  ),
-                  HeightSpace(35),
-                  Row(
+          child: BlocConsumer<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthSuccess) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+                GoRouter.of(context).pushReplacementNamed(AppRoutes.homeScreen);
+                password.clear();
+              } else if (state is AuthError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+            builder: (context, state) {
+              if (state is AuthLoading) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 22),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(width: 105.w, child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      HeightSpace(12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: BackButtonWidgate(),
+                      ),
+                      const HeightSpace(28),
+                      SizedBox(
+                        width: 280.w,
                         child: Text(
-                          "Or Login With",
+                          "Welcome Back Again",
+                          style: AppStyles.primaryHeadLinesStyle,
+                        ),
+                      ),
+                      const HeightSpace(32),
+                      CustomTextField(
+                        hintText: "Enter Your Email",
+                        controller: emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Enter your email";
+                          }
+                          if (!RegExp(
+                            r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+                          ).hasMatch(value)) {
+                            return "Enter a valid email address";
+                          }
+                          return null;
+                        },
+                      ),
+                      const HeightSpace(15),
+                      CustomTextField(
+                        controller: password,
+                        hintText: "Enter Your Password",
+                        isPassword: isPassword,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Enter your password";
+                          }
+                          if (value.length < 8) {
+                            return "Password must be at least 8 characters";
+                          }
+                          return null;
+                        },
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPassword
+                                ? Icons.remove_red_eye_outlined
+                                : Icons.remove_red_eye,
+                            size: 25.sp,
+                            color: AppColors.primaryColor,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPassword = !isPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      const HeightSpace(15),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "Forget Password?",
                           style: AppStyles.black15BoldStyle.copyWith(
-                            color: const Color(0xFF6A707C),
+                            color: Color(0xFF6A707C),
                           ),
                         ),
                       ),
-                      SizedBox(width: 105.w, child: Divider()),
-                    ],
-                  ),
-                  const HeightSpace(22),
-                  const CustomOrLoginWidgate(),
-                  const HeightSpace(120),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        text: "Don't have an account? ",
-                        style: AppStyles.black15BoldStyle,
+                      const HeightSpace(30),
+                      PrimaryButtonWidget(
+                        buttonText: "Login",
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            context.read<AuthCubit>().login(
+                              email: emailController.text.trim(),
+                              password: password.text.trim(),
+                            );
+                          }
+                        },
+                      ),
+                      HeightSpace(35),
+                      Row(
                         children: [
-                          TextSpan(
-                            text: "Register now",
-                            style: AppStyles.black16w500Style.copyWith(
-                              color: AppColors.primaryColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
+                          SizedBox(width: 105.w, child: Divider()),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w),
+                            child: Text(
+                              "Or Login With",
+                              style: AppStyles.black15BoldStyle.copyWith(
+                                color: const Color(0xFF6A707C),
+                              ),
                             ),
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap = () {
-                                    GoRouter.of(
-                                      context,
-                                    ).pushNamed(AppRoutes.registerScreen);
-                                  },
                           ),
+                          SizedBox(width: 105.w, child: Divider()),
                         ],
                       ),
-                    ),
+                      const HeightSpace(22),
+                      const CustomOrLoginWidgate(),
+                      const HeightSpace(120),
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            text: "Don't have an account? ",
+                            style: AppStyles.black15BoldStyle,
+                            children: [
+                              TextSpan(
+                                text: "Register now",
+                                style: AppStyles.black16w500Style.copyWith(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer:
+                                    TapGestureRecognizer()
+                                      ..onTap = () {
+                                        GoRouter.of(
+                                          context,
+                                        ).pushNamed(AppRoutes.registerScreen);
+                                      },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
