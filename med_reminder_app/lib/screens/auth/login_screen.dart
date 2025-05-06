@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(state.message)));
-                GoRouter.of(context).pushReplacementNamed(AppRoutes.homeScreen);
+                GoRouter.of(context).go(AppRoutes.homeScreen);
                 password.clear();
               } else if (state is AuthError) {
                 ScaffoldMessenger.of(

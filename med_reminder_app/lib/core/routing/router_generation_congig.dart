@@ -2,12 +2,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
+import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/forget_password_screen.dart';
 import 'package:med_reminder_app/screens/auth/login_screen.dart';
 import 'package:med_reminder_app/screens/auth/register_screen.dart';
+import 'package:med_reminder_app/screens/edit/edit_medication_screen.dart';
 import 'package:med_reminder_app/screens/home/home_screen.dart';
 import 'package:med_reminder_app/screens/onboarding_screen.dart';
+import 'package:med_reminder_app/screens/sittings/settings_screen.dart';
 
 class RouterGenerationCongig {
   static GoRouter goRouter = GoRouter(
@@ -54,6 +57,21 @@ class RouterGenerationCongig {
               value: sl<AuthCubit>(),
               child: const HomeScreen(),
             ),
+      ),
+      GoRoute(
+        path: AppRoutes.addMedicationScreen,
+        name: AppRoutes.addMedicationScreen,
+        builder: (context, state) => const AddMedicationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editMedicationScreen,
+        name: AppRoutes.editMedicationScreen,
+        builder: (context, state) => const EditMedicationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsScreen,
+        name: AppRoutes.settingsScreen,
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );

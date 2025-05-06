@@ -7,14 +7,14 @@ import 'package:med_reminder_app/core/widgets/primary_Outlined_button_widget.dar
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 
-class AddMedicationScreen extends StatefulWidget {
-  const AddMedicationScreen({super.key});
+class EditMedicationScreen extends StatefulWidget {
+  const EditMedicationScreen({super.key});
 
   @override
-  State<AddMedicationScreen> createState() => _AddMedicationScreenState();
+  State<EditMedicationScreen> createState() => _EditMedicationScreenState();
 }
 
-class _AddMedicationScreenState extends State<AddMedicationScreen> {
+class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController medicationNameController =
       TextEditingController();
@@ -82,7 +82,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          "Add Medication",
+          "Edit Medication",
           style: AppStyles.primaryHeadLinesStyle.copyWith(
             color: AppColors.whiteColor,
             fontWeight: FontWeight.w400,
