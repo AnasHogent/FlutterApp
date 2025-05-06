@@ -50,7 +50,7 @@ class OnboardingScreen extends StatelessWidget {
               Text(
                 "Continue as a guest",
                 style: AppStyles.black15BoldStyle.copyWith(
-                  color: const Color.fromARGB(255, 0, 117, 212),
+                  color: const Color.fromARGB(255, 0, 59, 107),
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.underline,
                 ),

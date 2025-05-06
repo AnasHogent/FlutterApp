@@ -6,7 +6,7 @@ import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/forget_password_screen.dart';
 import 'package:med_reminder_app/screens/auth/login_screen.dart';
 import 'package:med_reminder_app/screens/auth/register_screen.dart';
-import 'package:med_reminder_app/screens/home_screen.dart';
+import 'package:med_reminder_app/screens/home/home_screen.dart';
 import 'package:med_reminder_app/screens/onboarding_screen.dart';
 
 class RouterGenerationCongig {
