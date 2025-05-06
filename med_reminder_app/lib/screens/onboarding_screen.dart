@@ -13,43 +13,50 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Image.asset(
-              AppAssets.onboard,
-              width: double.infinity,
-              height: 570.h,
-              fit: BoxFit.fill,
-            ),
-            HeightSpace(21),
-            PrimaryButtonWidget(
-              onPressed: () {
-                GoRouter.of(context).pushNamed(AppRoutes.loginScreen);
-              },
-              buttonText: "Login",
-              width: 331.w,
-              height: 56.h,
-            ),
-            HeightSpace(15),
-            PrimaryOutlinedButtonWidget(
-              onPressed: () {
-                GoRouter.of(context).pushNamed(AppRoutes.registerScreen);
-              },
-              buttonText: "Register",
-              width: 331.w,
-              height: 56.h,
-            ),
-            HeightSpace(46),
-            Text(
-              "Continue as a guest",
-              style: AppStyles.black15BoldStyle.copyWith(
-                color: const Color(0xFF202955),
-                decoration: TextDecoration.underline,
+      body: SafeArea(
+        bottom: true,
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Image.asset(
+                AppAssets.onboard,
+                width: double.infinity,
+                height: 570.h,
+                fit: BoxFit.fill,
               ),
-            ),
-          ],
+              HeightSpace(21),
+              PrimaryButtonWidget(
+                onPressed: () {
+                  GoRouter.of(context).pushNamed(AppRoutes.loginScreen);
+                },
+                buttonText: "Login",
+                width: 331.w,
+                height: 56.h,
+              ),
+              HeightSpace(15),
+              PrimaryOutlinedButtonWidget(
+                onPressed: () {
+                  GoRouter.of(context).pushNamed(AppRoutes.registerScreen);
+                },
+                buttonText: "Register",
+                width: 331.w,
+                height: 56.h,
+              ),
+              HeightSpace(20),
+              Text(
+                "Continue as a guest",
+                style: AppStyles.black15BoldStyle.copyWith(
+                  color: const Color.fromARGB(255, 0, 117, 212),
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

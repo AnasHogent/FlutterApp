@@ -35,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -165,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const HeightSpace(22),
                       const CustomOrLoginWidgate(),
-                      const HeightSpace(120),
+                      const HeightSpace(90),
                       Center(
                         child: RichText(
                           text: TextSpan(
