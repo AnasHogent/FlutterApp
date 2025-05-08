@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 
 class CustomFieldWithTitle extends StatelessWidget {
@@ -29,26 +30,39 @@ class CustomFieldWithTitle extends StatelessWidget {
       children: [
         Text(title, style: AppStyles.black16w500Style),
         TextFormField(
+          cursorColor: AppColors.primaryColor,
           controller: controller,
           validator: validator,
           autofocus: false,
           keyboardType: keyboardType,
           obscureText: isPassword ?? false,
           decoration: InputDecoration(
-            hintText: title,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Color(0xffE8ECF4), width: 1),
-            ),
-            filled: true,
-            fillColor: const Color(0xFFF7F8F9),
+            hintText: title ?? "",
             contentPadding: EdgeInsets.symmetric(
               horizontal: 18.w,
               vertical: 18.h,
             ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: Color(0xffE8ECF4), width: 1),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            filled: true,
+            fillColor: Color(0xFFF7F8F9),
             hintStyle: TextStyle(
               fontSize: 15.sp,
-              color: const Color(0xFF8391A1),
+              color: Color(0XFF8391A1),
               fontWeight: FontWeight.w400,
             ),
             suffixIcon: suffixIcon,

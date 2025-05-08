@@ -24,6 +24,7 @@ class CustomTextField extends StatelessWidget {
     return SizedBox(
       width: width ?? 331.w,
       child: TextFormField(
+        cursorColor: AppColors.primaryColor,
         controller: controller,
         validator: validator,
         autofocus: false,

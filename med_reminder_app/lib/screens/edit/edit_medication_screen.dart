@@ -32,7 +32,25 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onPrimary: AppColors.whiteColor,
+              onSurface: AppColors.blackColor,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryColor, // CANCEL/OK color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (time != null) {
       setState(() {
         times.add(time);
@@ -46,7 +64,25 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2025),
       lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onPrimary: AppColors.whiteColor,
+              onSurface: AppColors.blackColor,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryColor,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (date != null) {
       setState(() {
         isStart ? startDate = date : endDate = date;
