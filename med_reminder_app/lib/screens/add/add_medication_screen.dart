@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/custom_field_with_title.dart';
@@ -6,6 +7,8 @@ import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_Outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
+import 'package:med_reminder_app/models/medication_reminder.dart';
+import 'package:ulid/ulid.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   const AddMedicationScreen({super.key});
@@ -64,7 +67,25 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2025),
       lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onPrimary: AppColors.whiteColor,
+              onSurface: AppColors.blackColor,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryColor,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (date != null) {
       setState(() {
         isStart ? startDate = date : endDate = date;
@@ -72,7 +93,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     }
   }
 
-  void _submit() {
+  void _submit() async {
     repeatEveryXDays = int.tryParse(repeatController.text.trim()) ?? 1;
     if (formKey.currentState!.validate()) {
       if (times.isEmpty || startDate == null) {
@@ -83,12 +104,25 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         );
         return;
       }
+      List<String> formattedTimes =
+          times.map((t) => t.format(context)).toList();
 
-      print("Name: ${medicationNameController.text.trim()}");
-      print("Times: $times");
-      print("Start: $startDate");
-      print("End: $endDate");
-      print("Repeat every $repeatEveryXDays day(s)");
+      final reminder = MedicationReminder(
+        id: Ulid().toString(),
+        name: medicationNameController.text.trim(),
+        times: formattedTimes,
+        startDate: startDate!,
+        endDate: endDate,
+        repeatDays: repeatEveryXDays,
+        isSynced: false,
+      );
+      final box = Hive.box<MedicationReminder>('medications');
+      await box.add(reminder);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reminder saved successfully!')),
+      );
+      Navigator.pop(context);
     }
   }
 

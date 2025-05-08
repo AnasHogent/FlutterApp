@@ -47,12 +47,17 @@ class OnboardingScreen extends StatelessWidget {
                 height: 56.h,
               ),
               HeightSpace(20),
-              Text(
-                "Continue as a guest",
-                style: AppStyles.black15BoldStyle.copyWith(
-                  color: const Color.fromARGB(255, 0, 59, 107),
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
+              InkWell(
+                onTap: () {
+                  GoRouter.of(context).replaceNamed(AppRoutes.homeScreen);
+                },
+                child: Text(
+                  "Continue as a guest",
+                  style: AppStyles.black15BoldStyle.copyWith(
+                    color: const Color.fromARGB(255, 0, 59, 107),
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ],

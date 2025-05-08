@@ -32,7 +32,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       isNotificationsEnabled = value;
       settingsBox.put('notifications_enabled', value);
 
-      // إذا بدك توقف الإشعارات فعليًا:
       // if (!value) {
       //   flutterLocalNotificationsPlugin.cancelAll();
       // }

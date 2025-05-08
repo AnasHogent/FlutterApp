@@ -6,12 +6,15 @@ import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/router_generation_congig.dart';
 import 'package:med_reminder_app/core/styling/theme_data.dart';
 import 'package:med_reminder_app/firebase_options.dart';
+import 'package:med_reminder_app/models/medication_reminder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
+  Hive.registerAdapter(MedicationReminderAdapter());
+  await Hive.openBox<MedicationReminder>('medications');
   await Hive.openBox('settings');
   await initDI();
   runApp(const MyApp());
