@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
@@ -13,8 +15,27 @@ import 'package:med_reminder_app/screens/onboarding_screen.dart';
 import 'package:med_reminder_app/screens/sittings/settings_screen.dart';
 
 class RouterGenerationCongig {
-  static GoRouter goRouter = GoRouter(
-    initialLocation: AppRoutes.onboardingScreen,
+  static final Box settingsBox = Hive.box('settings');
+
+  static String _getInitialRoute() {
+    final hasSeenOnboarding = settingsBox.get(
+      'seen_onboarding',
+      defaultValue: false,
+    );
+    final isGuest = settingsBox.get('is_guest', defaultValue: false);
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+
+    if (isLoggedIn || isGuest) {
+      return AppRoutes.homeScreen;
+    } else if (!hasSeenOnboarding) {
+      return AppRoutes.onboardingScreen;
+    } else {
+      return AppRoutes.loginScreen;
+    }
+  }
+
+  static final GoRouter goRouter = GoRouter(
+    initialLocation: _getInitialRoute(),
     routes: [
       GoRoute(
         path: AppRoutes.onboardingScreen,
@@ -48,7 +69,6 @@ class RouterGenerationCongig {
               child: const ForgetPasswordScreen(),
             ),
       ),
-
       GoRoute(
         path: AppRoutes.homeScreen,
         name: AppRoutes.homeScreen,

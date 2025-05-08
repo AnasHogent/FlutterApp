@@ -101,12 +101,6 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         );
         return;
       }
-
-      print("Name: ${medicationNameController.text.trim()}");
-      print("Times: $times");
-      print("Start: $startDate");
-      print("End: $endDate");
-      print("Repeat every $repeatEveryXDays day(s)");
     }
   }
 

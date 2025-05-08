@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
@@ -40,11 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         body: SingleChildScrollView(
           child: BlocConsumer<AuthCubit, AuthState>(
-            listener: (context, state) {
+            listener: (context, state) async {
               if (state is AuthSuccess) {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(state.message)));
+                await Hive.box('settings').put('is_logged_in', true);
+                await Hive.box('settings').put('is_guest', false);
                 GoRouter.of(context).go(AppRoutes.homeScreen);
                 password.clear();
               } else if (state is AuthError) {

@@ -14,6 +14,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
   Hive.registerAdapter(MedicationReminderAdapter());
+  await Hive.openBox('settings');
+
   await Hive.openBox<MedicationReminder>('medications');
   await Hive.openBox('settings');
   await initDI();

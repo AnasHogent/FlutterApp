@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
@@ -48,7 +49,9 @@ class OnboardingScreen extends StatelessWidget {
               ),
               HeightSpace(20),
               InkWell(
-                onTap: () {
+                onTap: () async {
+                  await Hive.box('settings').put('is_logged_in', false);
+                  await Hive.box('settings').put('is_guest', true);
                   GoRouter.of(context).replaceNamed(AppRoutes.homeScreen);
                 },
                 child: Text(

@@ -28,6 +28,7 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
+
         backgroundColor: AppColors.primaryColor,
         centerTitle: true,
         //automaticallyImplyLeading: false,

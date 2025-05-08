@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
@@ -59,13 +61,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
             fontWeight: FontWeight.w400,
           ),
         ),
-        actions: const [
-          Padding(
+        actions: [
+          const Padding(
             padding: EdgeInsets.only(right: 16),
             child: Icon(Icons.settings, color: Colors.white, size: 30),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primaryColor,
+        shape: const CircleBorder(),
+        onPressed: () async {
+          final user = FirebaseAuth.instance.currentUser;
+
+          if (user != null) {
+            // await Hive.box('medications').clear();
+            await FirebaseAuth.instance.signOut();
+          }
+          GoRouter.of(context).go('/onboardingScreen');
+        },
+        child: Icon(
+          FirebaseAuth.instance.currentUser != null
+              ? Icons.logout
+              : Icons.login,
+          color: Colors.white,
+          size: 28,
+        ),
+      ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 25),
         child: Column(
