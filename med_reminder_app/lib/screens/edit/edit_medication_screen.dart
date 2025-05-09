@@ -123,6 +123,13 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     Navigator.of(context).pop();
   }
 
+  void _delete() async {
+    await widget.reminder.delete();
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -161,12 +168,11 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       //backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 3),
           child: Form(
             key: formKey,
             child: ListView(
               children: [
-                const HeightSpace(10),
                 Text("Medication name:", style: AppStyles.black16w500Style),
                 CustomTextField(
                   controller: medicationNameController,
@@ -219,7 +225,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                     style: AppStyles.black16w500Style.copyWith(fontSize: 25),
                     startDate == null
                         ? "Select start date"
-                        : "Start: ${startDate!.toLocal().toString().split(' ')[0]}",
+                        : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: const Icon(Icons.calendar_month),
                   onTap: () => _pickDate(isStart: true),
@@ -230,7 +236,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                     style: AppStyles.black16w500Style.copyWith(fontSize: 25),
                     endDate == null
                         ? "Select end date (optional)"
-                        : "End: ${endDate!.toLocal().toString().split(' ')[0]}",
+                        : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: const Icon(Icons.calendar_month),
                   onTap: () => _pickDate(isStart: false),
@@ -253,6 +259,13 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 Divider(),
                 const HeightSpace(10),
                 PrimaryButtonWidget(onPressed: _submit, buttonText: "Save"),
+                const HeightSpace(10),
+                PrimaryOutlinedButtonWidget(
+                  onPressed: _delete,
+                  buttonText: "Delete",
+                  textColor: Colors.red,
+                  borderColor: Colors.red,
+                ),
               ],
             ),
           ),

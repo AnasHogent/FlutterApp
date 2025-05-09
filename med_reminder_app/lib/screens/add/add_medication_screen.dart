@@ -149,7 +149,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             key: formKey,
             child: ListView(
               children: [
-                const HeightSpace(10),
                 Text("Medication name:", style: AppStyles.black16w500Style),
                 CustomTextField(
                   controller: medicationNameController,
@@ -202,7 +201,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     style: AppStyles.black16w500Style.copyWith(fontSize: 25),
                     startDate == null
                         ? "Select start date"
-                        : "Start: ${startDate!.toLocal().toString().split(' ')[0]}",
+                        : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: const Icon(Icons.calendar_month),
                   onTap: () => _pickDate(isStart: true),
@@ -213,7 +212,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     style: AppStyles.black16w500Style.copyWith(fontSize: 25),
                     endDate == null
                         ? "Select end date (optional)"
-                        : "End: ${endDate!.toLocal().toString().split(' ')[0]}",
+                        : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: const Icon(Icons.calendar_month),
                   onTap: () => _pickDate(isStart: false),
