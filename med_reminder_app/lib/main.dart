@@ -5,19 +5,26 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/router_generation_congig.dart';
 import 'package:med_reminder_app/core/styling/theme_data.dart';
+import 'package:med_reminder_app/core/theme/theme_provider.dart';
 import 'package:med_reminder_app/firebase_options.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
   Hive.registerAdapter(MedicationReminderAdapter());
   await Hive.openBox('settings');
   await Hive.openBox<MedicationReminder>('medications');
   await initDI();
-  runApp(const MyApp());
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -26,12 +33,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    //final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = context.watch<ThemeProvider>();
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       builder: (context, child) {
         return MaterialApp.router(
-          title: 'Flutter Demo',
+          title: 'Med Reminder',
           theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          //themeMode: ThemeMode.system,
+          themeMode: themeProvider.themeMode,
           routerConfig: RouterGenerationCongig.goRouter,
         );
       },

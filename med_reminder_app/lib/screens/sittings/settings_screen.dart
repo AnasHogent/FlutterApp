@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
+import 'package:med_reminder_app/core/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,7 +17,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late Box settingsBox;
   bool isNotificationsEnabled = true;
-  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -26,7 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       'notifications_enabled',
       defaultValue: true,
     );
-    isDarkMode = settingsBox.get('darkMode', defaultValue: false);
   }
 
   void toggleNotifications(bool value) {
@@ -41,10 +41,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void toggleDarkMode(bool value) {
-    settingsBox.put('darkMode', value);
-    setState(() {
-      isDarkMode = value;
-    });
+    context.read<ThemeProvider>().toggleTheme(value);
+    setState(() {});
   }
 
   @override
@@ -111,7 +109,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text("Dark Mode", style: AppStyles.black16w500Style),
                 Switch(
-                  value: isDarkMode,
+                  value:
+                      context.watch<ThemeProvider>().themeMode ==
+                      ThemeMode.dark,
                   onChanged: toggleDarkMode,
                   activeColor: AppColors.primaryColor,
                 ),
