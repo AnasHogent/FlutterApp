@@ -15,9 +15,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(MedicationReminderAdapter());
   await Hive.openBox('settings');
-
   await Hive.openBox<MedicationReminder>('medications');
-  await Hive.openBox('settings');
   await initDI();
   runApp(const MyApp());
 }

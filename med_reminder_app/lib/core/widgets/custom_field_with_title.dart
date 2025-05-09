@@ -37,7 +37,7 @@ class CustomFieldWithTitle extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: isPassword ?? false,
           decoration: InputDecoration(
-            hintText: title ?? "",
+            hintText: title,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 18.w,
               vertical: 18.h,

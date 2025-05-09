@@ -5,8 +5,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
-import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
-import 'package:med_reminder_app/core/widgets/primary_outlined_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -52,6 +52,7 @@ class OnboardingScreen extends StatelessWidget {
                 onTap: () async {
                   await Hive.box('settings').put('is_logged_in', false);
                   await Hive.box('settings').put('is_guest', true);
+                  if (!context.mounted) return;
                   GoRouter.of(context).replaceNamed(AppRoutes.homeScreen);
                 },
                 child: Text(

@@ -78,6 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // await Hive.box('medications').clear();
             await FirebaseAuth.instance.signOut();
           }
+          if (!context.mounted) return;
           GoRouter.of(context).go('/onboardingScreen');
         },
         child: Icon(

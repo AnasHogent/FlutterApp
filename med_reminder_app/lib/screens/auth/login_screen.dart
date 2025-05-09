@@ -7,8 +7,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
-import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_state.dart';
@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ).showSnackBar(SnackBar(content: Text(state.message)));
                 await Hive.box('settings').put('is_logged_in', true);
                 await Hive.box('settings').put('is_guest', false);
+                if (!context.mounted) return;
                 GoRouter.of(context).go(AppRoutes.homeScreen);
                 password.clear();
               } else if (state is AuthError) {

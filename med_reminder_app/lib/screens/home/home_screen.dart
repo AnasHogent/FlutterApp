@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                       const HeightSpace(3),
                                       Text(
-                                        "End: ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
+                                        "End:   ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
                                         style: AppStyles.black15BoldStyle
                                             .copyWith(color: Colors.grey[700]),
                                       ),
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                                     return Chip(
                                       label: Text(time),
                                       backgroundColor: AppColors.primaryColor
-                                          .withOpacity(0.1),
+                                          .withAlpha((255 * 0.5).round()),
                                       labelStyle: AppStyles.black15BoldStyle
                                           .copyWith(fontSize: 18),
                                     );

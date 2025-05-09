@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/custom_field_with_title.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
-import 'package:med_reminder_app/core/widgets/primary_Outlined_button_widget.dart';
-import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 
@@ -115,24 +115,23 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
     // Hive propleem
     await updatedReminder.save();
-
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Medication updated')));
 
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 
   void _delete() async {
     await widget.reminder.delete();
-    if (context.mounted) {
-      Navigator.pop(context);
-    }
+    if (!mounted) return;
+    Navigator.pop(context);
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     final reminder = widget.reminder;
     medicationNameController.text = reminder.name;
@@ -227,7 +226,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                         ? "Select start date"
                         : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
-                  trailing: const Icon(Icons.calendar_month),
+                  trailing: Icon(
+                    Icons.calendar_month,
+                    color: AppColors.primaryColor,
+                  ),
                   onTap: () => _pickDate(isStart: true),
                 ),
                 Divider(),
@@ -238,7 +240,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                         ? "Select end date (optional)"
                         : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
-                  trailing: const Icon(Icons.calendar_month),
+                  trailing: Icon(
+                    Icons.calendar_month,
+                    color: AppColors.primaryColor,
+                  ),
                   onTap: () => _pickDate(isStart: false),
                 ),
                 Divider(),

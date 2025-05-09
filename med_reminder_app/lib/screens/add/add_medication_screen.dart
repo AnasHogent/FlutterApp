@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/custom_field_with_title.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
-import 'package:med_reminder_app/core/widgets/primary_Outlined_button_widget.dart';
-import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:ulid/ulid.dart';
@@ -118,10 +118,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       );
       final box = Hive.box<MedicationReminder>('medications');
       await box.add(reminder);
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reminder saved successfully!')),
       );
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }
@@ -203,7 +204,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         ? "Select start date"
                         : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
-                  trailing: const Icon(Icons.calendar_month),
+                  trailing: Icon(
+                    Icons.calendar_month,
+                    color: AppColors.primaryColor,
+                  ),
                   onTap: () => _pickDate(isStart: true),
                 ),
                 Divider(),
@@ -214,7 +218,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         ? "Select end date (optional)"
                         : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
-                  trailing: const Icon(Icons.calendar_month),
+                  trailing: Icon(
+                    Icons.calendar_month,
+                    color: AppColors.primaryColor,
+                  ),
                   onTap: () => _pickDate(isStart: false),
                 ),
                 Divider(),
