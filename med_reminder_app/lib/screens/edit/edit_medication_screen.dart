@@ -113,14 +113,14 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
           ..repeatDays = repeatEveryXDays
           ..isSynced = false;
 
-    // Opslaan in Hive
+    // Hive propleem
     await updatedReminder.save();
 
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Medication updated')));
 
-    Navigator.of(context).pop(); // Terug naar vorige scherm
+    Navigator.of(context).pop();
   }
 
   @override

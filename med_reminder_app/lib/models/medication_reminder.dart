@@ -5,25 +5,25 @@ part 'medication_reminder.g.dart';
 @HiveType(typeId: 0)
 class MedicationReminder extends HiveObject {
   @HiveField(0)
-  final String id;
+  String id;
 
   @HiveField(1)
-  final String name;
+  String name;
 
   @HiveField(2)
-  final List<String> times; //HH:mm
+  List<String> times; //HH:mm
 
   @HiveField(3)
-  final DateTime startDate;
+  DateTime startDate;
 
   @HiveField(4)
-  final DateTime? endDate;
+  DateTime? endDate;
 
   @HiveField(5)
-  final int repeatDays;
+  int repeatDays;
 
   @HiveField(6)
-  final bool isSynced;
+  bool isSynced;
 
   MedicationReminder({
     required this.id,
