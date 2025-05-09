@@ -75,77 +75,85 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               children: [
                 ...meds.map(
-                  (med) => Card(
-                    color: AppColors.whiteColor,
-                    shadowColor: AppColors.primaryColor,
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.medicineSVGIcon,
-                                height: 60.h,
-                                width: 60.w,
-                                fit: BoxFit.contain,
-                              ),
-                              const WidthSpace(30),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const HeightSpace(6),
-                                    Text(
-                                      med.name,
-                                      style: AppStyles.black16w500Style
-                                          .copyWith(fontSize: 25),
-                                    ),
-                                    const HeightSpace(6),
-                                    Text(
-                                      "Start: ${med.startDate.toString().split(' ')[0]}",
-                                      style: AppStyles.black15BoldStyle
-                                          .copyWith(color: Colors.grey[700]),
-                                    ),
-                                    const HeightSpace(3),
-                                    Text(
-                                      "End: ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
-                                      style: AppStyles.black15BoldStyle
-                                          .copyWith(color: Colors.grey[700]),
-                                    ),
-                                  ],
+                  (med) => GestureDetector(
+                    onTap: () {
+                      GoRouter.of(
+                        context,
+                      ).pushNamed(AppRoutes.editMedicationScreen, extra: med);
+                    },
+                    child: Card(
+                      color: AppColors.whiteColor,
+                      shadowColor: AppColors.primaryColor,
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.medicineSVGIcon,
+                                  height: 60.h,
+                                  width: 60.w,
+                                  fit: BoxFit.contain,
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const HeightSpace(6),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children:
-                                med.times.map((time) {
-                                  return Chip(
-                                    label: Text(time),
-                                    backgroundColor: AppColors.primaryColor
-                                        .withOpacity(0.1),
-                                    labelStyle: AppStyles.black15BoldStyle
-                                        .copyWith(fontSize: 18),
-                                  );
-                                }).toList(),
-                          ),
-                          const HeightSpace(6),
-                          Text(
-                            "Repeat every: ${med.repeatDays} day(s)",
-                            style: AppStyles.black15BoldStyle.copyWith(
-                              color: Colors.grey[700],
+                                const WidthSpace(30),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const HeightSpace(6),
+                                      Text(
+                                        med.name,
+                                        style: AppStyles.black16w500Style
+                                            .copyWith(fontSize: 25),
+                                      ),
+                                      const HeightSpace(6),
+                                      Text(
+                                        "Start: ${med.startDate.toString().split(' ')[0]}",
+                                        style: AppStyles.black15BoldStyle
+                                            .copyWith(color: Colors.grey[700]),
+                                      ),
+                                      const HeightSpace(3),
+                                      Text(
+                                        "End: ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
+                                        style: AppStyles.black15BoldStyle
+                                            .copyWith(color: Colors.grey[700]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const HeightSpace(6),
-                        ],
+
+                            const HeightSpace(6),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children:
+                                  med.times.map((time) {
+                                    return Chip(
+                                      label: Text(time),
+                                      backgroundColor: AppColors.primaryColor
+                                          .withOpacity(0.1),
+                                      labelStyle: AppStyles.black15BoldStyle
+                                          .copyWith(fontSize: 18),
+                                    );
+                                  }).toList(),
+                            ),
+                            const HeightSpace(6),
+                            Text(
+                              "Repeat every: ${med.repeatDays} day(s)",
+                              style: AppStyles.black15BoldStyle.copyWith(
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const HeightSpace(6),
+                          ],
+                        ),
                       ),
                     ),
                   ),

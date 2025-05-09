@@ -6,9 +6,11 @@ import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/primary_Outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/primary_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
+import 'package:med_reminder_app/models/medication_reminder.dart';
 
 class EditMedicationScreen extends StatefulWidget {
-  const EditMedicationScreen({super.key});
+  final MedicationReminder reminder;
+  const EditMedicationScreen({super.key, required this.reminder});
 
   @override
   State<EditMedicationScreen> createState() => _EditMedicationScreenState();
@@ -90,7 +92,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     }
   }
 
-  void _submit() {
+  void _submit() async {
     repeatEveryXDays = int.tryParse(repeatController.text.trim()) ?? 1;
     if (formKey.currentState!.validate()) {
       if (times.isEmpty || startDate == null) {
@@ -102,6 +104,43 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         return;
       }
     }
+    final updatedReminder =
+        widget.reminder
+          ..name = medicationNameController.text.trim()
+          ..times = times.map((t) => t.format(context)).toList()
+          ..startDate = startDate!
+          ..endDate = endDate
+          ..repeatDays = repeatEveryXDays
+          ..isSynced = false;
+
+    // Opslaan in Hive
+    await updatedReminder.save();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Medication updated')));
+
+    Navigator.of(context).pop(); // Terug naar vorige scherm
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final reminder = widget.reminder;
+    medicationNameController.text = reminder.name;
+    repeatController.text = reminder.repeatDays.toString();
+    times.addAll(
+      reminder.times.map((t) {
+        final parts = t.split(":");
+        return TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }),
+    );
+    startDate = reminder.startDate;
+    endDate = reminder.endDate;
   }
 
   @override

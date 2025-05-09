@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
+import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/forget_password_screen.dart';
@@ -86,7 +87,10 @@ class RouterGenerationCongig {
       GoRoute(
         path: AppRoutes.editMedicationScreen,
         name: AppRoutes.editMedicationScreen,
-        builder: (context, state) => const EditMedicationScreen(),
+        builder: (context, state) {
+          final med = state.extra as MedicationReminder;
+          return EditMedicationScreen(reminder: med);
+        },
       ),
       GoRoute(
         path: AppRoutes.settingsScreen,
