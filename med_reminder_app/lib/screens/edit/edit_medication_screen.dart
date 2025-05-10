@@ -31,23 +31,34 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final bool isSynced = false;
 
   Future<void> _pickTime() async {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onPrimary: AppColors.whiteColor,
-              onSurface: AppColors.blackColor,
-            ),
+            colorScheme:
+                isDark
+                    ? ColorScheme.dark(
+                      primary: colorScheme.primary,
+                      onPrimary: colorScheme.onPrimary,
+                      surface: colorScheme.surface,
+                      onSurface: colorScheme.onSurface,
+                    )
+                    : ColorScheme.light(
+                      primary: colorScheme.primary,
+                      onPrimary: colorScheme.onPrimary,
+                      surface: colorScheme.surface,
+                      onSurface: colorScheme.onSurface,
+                    ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primaryColor, // CANCEL/OK color
-              ),
+              style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
             ),
           ),
+
           child: child!,
         );
       },
@@ -61,6 +72,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   }
 
   Future<void> _pickDate({required bool isStart}) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -69,17 +83,25 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onPrimary: AppColors.whiteColor,
-              onSurface: AppColors.blackColor,
-            ),
+            colorScheme:
+                isDark
+                    ? ColorScheme.dark(
+                      primary: scheme.primary,
+                      onPrimary: scheme.onPrimary,
+                      surface: scheme.surface,
+                      onSurface: scheme.onSurface,
+                    )
+                    : ColorScheme.light(
+                      primary: scheme.primary,
+                      onPrimary: scheme.onPrimary,
+                      surface: scheme.surface,
+                      onSurface: scheme.onSurface,
+                    ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primaryColor,
-              ),
+              style: TextButton.styleFrom(foregroundColor: scheme.primary),
             ),
           ),
+
           child: child!,
         );
       },
@@ -172,7 +194,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             key: formKey,
             child: ListView(
               children: [
-                Text("Medication name:", style: AppStyles.black16w500Style),
+                Text(
+                  "Medication name:",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 CustomTextField(
                   controller: medicationNameController,
                   hintText: "Medication name",
@@ -185,9 +210,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 const HeightSpace(16),
                 Divider(),
                 const HeightSpace(16),
-                PrimaryOutlinedButtonWidget(
+                PrimaryButtonWidget(
                   onPressed: _pickTime,
                   buttonText: "Add time(s)",
+                  width: 40,
                 ),
                 const HeightSpace(10),
                 Wrap(
@@ -221,28 +247,32 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 Divider(),
                 ListTile(
                   title: Text(
-                    style: AppStyles.black16w500Style.copyWith(fontSize: 25),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(fontSize: 25),
                     startDate == null
                         ? "Select start date"
                         : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: Icon(
                     Icons.calendar_month,
-                    color: AppColors.primaryColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onTap: () => _pickDate(isStart: true),
                 ),
                 Divider(),
                 ListTile(
                   title: Text(
-                    style: AppStyles.black16w500Style.copyWith(fontSize: 25),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(fontSize: 25),
                     endDate == null
                         ? "Select end date (optional)"
                         : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: Icon(
                     Icons.calendar_month,
-                    color: AppColors.primaryColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onTap: () => _pickDate(isStart: false),
                 ),

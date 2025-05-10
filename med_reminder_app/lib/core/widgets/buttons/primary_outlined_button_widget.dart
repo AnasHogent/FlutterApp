@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:med_reminder_app/core/styling/app_colors.dart';
 
 class PrimaryOutlinedButtonWidget extends StatelessWidget {
   final String? buttonText;
@@ -26,13 +25,13 @@ class PrimaryOutlinedButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final effectiveTextColor = textColor ?? theme.colorScheme.onSurface;
+    final effectiveBorderColor = borderColor ?? theme.colorScheme.primary;
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        side: BorderSide(
-          color: borderColor ?? AppColors.primaryColor,
-          width: 2,
-        ),
+        side: BorderSide(color: effectiveBorderColor, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(bordersRadius ?? 8.r),
         ),
@@ -41,7 +40,7 @@ class PrimaryOutlinedButtonWidget extends StatelessWidget {
       child: Text(
         buttonText ?? "",
         style: TextStyle(
-          color: textColor ?? AppColors.primaryColor,
+          color: effectiveTextColor,
           fontWeight: FontWeight.bold,
           fontSize: fontSize ?? 20.sp,
         ),

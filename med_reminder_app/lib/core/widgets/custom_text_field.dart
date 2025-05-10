@@ -21,6 +21,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: width ?? 331.w,
       child: TextFormField(
@@ -52,10 +53,10 @@ class CustomTextField extends StatelessWidget {
             borderSide: BorderSide(color: Colors.red, width: 1),
           ),
           filled: true,
-          fillColor: Color(0xFFF7F8F9),
+          fillColor: colorScheme.surface,
           hintStyle: TextStyle(
             fontSize: 15.sp,
-            color: Color(0XFF8391A1),
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w400,
           ),
           suffixIcon: suffixIcon,

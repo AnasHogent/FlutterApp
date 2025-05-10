@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
@@ -95,7 +96,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Enable Notifications", style: AppStyles.black16w500Style),
+                Text(
+                  "Enable Notifications",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 20.sp,
+                  ),
+                ),
                 Switch(
                   value: isNotificationsEnabled,
                   onChanged: toggleNotifications,
@@ -107,7 +114,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Dark Mode", style: AppStyles.black16w500Style),
+                Text(
+                  "Dark Mode",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 20.sp,
+                  ),
+                ),
                 Switch(
                   value:
                       context.watch<ThemeProvider>().themeMode ==

@@ -4,9 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
-import 'package:med_reminder_app/core/styling/app_styles.dart';
-import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -57,9 +56,7 @@ class OnboardingScreen extends StatelessWidget {
                 },
                 child: Text(
                   "Continue as a guest",
-                  style: AppStyles.black15BoldStyle.copyWith(
-                    color: const Color.fromARGB(255, 0, 59, 107),
-                    fontWeight: FontWeight.bold,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     decoration: TextDecoration.underline,
                   ),
                 ),

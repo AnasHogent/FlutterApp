@@ -82,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                       ).pushNamed(AppRoutes.editMedicationScreen, extra: med);
                     },
                     child: Card(
-                      color: AppColors.whiteColor,
+                      color: Theme.of(context).colorScheme.surface,
                       shadowColor: AppColors.primaryColor,
                       elevation: 4,
                       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -108,8 +108,10 @@ class HomeScreen extends StatelessWidget {
                                       const HeightSpace(6),
                                       Text(
                                         med.name,
-                                        style: AppStyles.black16w500Style
-                                            .copyWith(fontSize: 25),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(fontSize: 25),
                                       ),
                                       const HeightSpace(6),
                                       Text(
@@ -136,11 +138,22 @@ class HomeScreen extends StatelessWidget {
                               children:
                                   med.times.map((time) {
                                     return Chip(
-                                      label: Text(time),
-                                      backgroundColor: AppColors.primaryColor
-                                          .withAlpha((255 * 0.5).round()),
-                                      labelStyle: AppStyles.black15BoldStyle
-                                          .copyWith(fontSize: 18),
+                                      label: Text(
+                                        time,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelLarge?.copyWith(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                          fontSize: 20.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.primary.withAlpha(128),
                                     );
                                   }).toList(),
                             ),

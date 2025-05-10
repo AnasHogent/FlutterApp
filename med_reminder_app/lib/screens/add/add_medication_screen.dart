@@ -3,7 +3,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
-import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/custom_field_with_title.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
@@ -32,23 +31,34 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final bool isSynced = false;
 
   Future<void> _pickTime() async {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onPrimary: AppColors.whiteColor,
-              onSurface: AppColors.blackColor,
-            ),
+            colorScheme:
+                isDark
+                    ? ColorScheme.dark(
+                      primary: colorScheme.primary,
+                      onPrimary: colorScheme.onPrimary,
+                      surface: colorScheme.surface,
+                      onSurface: colorScheme.onSurface,
+                    )
+                    : ColorScheme.light(
+                      primary: colorScheme.primary,
+                      onPrimary: colorScheme.onPrimary,
+                      surface: colorScheme.surface,
+                      onSurface: colorScheme.onSurface,
+                    ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primaryColor, // CANCEL/OK color
-              ),
+              style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
             ),
           ),
+
           child: child!,
         );
       },
@@ -68,19 +78,30 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       firstDate: DateTime(2025),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final scheme = Theme.of(context).colorScheme;
+
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onPrimary: AppColors.whiteColor,
-              onSurface: AppColors.blackColor,
-            ),
+            colorScheme:
+                isDark
+                    ? ColorScheme.dark(
+                      primary: scheme.primary,
+                      onPrimary: scheme.onPrimary,
+                      surface: scheme.surface,
+                      onSurface: scheme.onSurface,
+                    )
+                    : ColorScheme.light(
+                      primary: scheme.primary,
+                      onPrimary: scheme.onPrimary,
+                      surface: scheme.surface,
+                      onSurface: scheme.onSurface,
+                    ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primaryColor,
-              ),
+              style: TextButton.styleFrom(foregroundColor: scheme.primary),
             ),
           ),
+
           child: child!,
         );
       },
@@ -150,7 +171,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             key: formKey,
             child: ListView(
               children: [
-                Text("Medication name:", style: AppStyles.black16w500Style),
+                Text(
+                  "Medication name:",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 CustomTextField(
                   controller: medicationNameController,
                   hintText: "Medication name",
@@ -163,7 +187,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 const HeightSpace(16),
                 Divider(),
                 const HeightSpace(16),
-                PrimaryOutlinedButtonWidget(
+                PrimaryButtonWidget(
                   onPressed: _pickTime,
                   buttonText: "Add time(s)",
                 ),
@@ -199,28 +223,32 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 Divider(),
                 ListTile(
                   title: Text(
-                    style: AppStyles.black16w500Style.copyWith(fontSize: 25),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(fontSize: 25),
                     startDate == null
                         ? "Select start date"
                         : "Start:  ${startDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: Icon(
                     Icons.calendar_month,
-                    color: AppColors.primaryColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onTap: () => _pickDate(isStart: true),
                 ),
                 Divider(),
                 ListTile(
                   title: Text(
-                    style: AppStyles.black16w500Style.copyWith(fontSize: 25),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(fontSize: 25),
                     endDate == null
                         ? "Select end date (optional)"
                         : "End:    ${endDate!.toLocal().toString().split(' ')[0]}",
                   ),
                   trailing: Icon(
                     Icons.calendar_month,
-                    color: AppColors.primaryColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onTap: () => _pickDate(isStart: false),
                 ),
