@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
@@ -15,8 +16,13 @@ class SyncService {
     if (!await _hasInternet()) return;
     if (reminder.isSynced) return;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
     try {
       await firestore
+          .collection('users')
+          .doc(uid)
           .collection('reminders')
           .doc(reminder.id)
           .set(reminder.toJson());
@@ -31,11 +37,18 @@ class SyncService {
   Future<void> syncAllPending() async {
     if (!await _hasInternet()) return;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
     final box = Hive.box<MedicationReminder>('medications');
     final unsynced = box.values.where((r) => !r.isSynced).toList();
 
     for (final reminder in unsynced) {
-      await trySyncOne(reminder);
+      try {
+        await trySyncOne(reminder);
+      } catch (e) {
+        debugPrint('Sync fout bij ${reminder.id}: $e');
+      }
     }
   }
 

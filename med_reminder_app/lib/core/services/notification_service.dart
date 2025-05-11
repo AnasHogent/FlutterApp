@@ -24,23 +24,10 @@ class NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
-
     final settings = InitializationSettings(android: androidSettings);
-
     await _plugin.initialize(settings);
 
     if (Platform.isAndroid) {
-      final deviceInfo = DeviceInfoPlugin();
-      final androidInfo = await deviceInfo.androidInfo;
-
-      if (androidInfo.version.sdkInt >= 33) {
-        await _plugin
-            .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin
-            >()
-            ?.requestNotificationsPermission();
-      }
-
       await _plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -202,5 +189,48 @@ class NotificationService {
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _plugin.pendingNotificationRequests();
+  }
+
+  Future<bool> requestPermissionIfNeeded() async {
+    final box = await Hive.openBox('settings');
+
+    if (!box.containsKey('notifications_enabled')) {
+      await box.put('notifications_enabled', false);
+    }
+
+    bool granted = false;
+
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+
+      if (androidInfo.version.sdkInt >= 33) {
+        final androidPlugin =
+            _plugin
+                .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+        granted =
+            await androidPlugin?.requestNotificationsPermission() ?? false;
+      } else {
+        granted = true;
+      }
+    } else {
+      final status = await Permission.notification.status;
+      if (status.isDenied ||
+          status.isRestricted ||
+          status.isPermanentlyDenied) {
+        final newStatus = await Permission.notification.request();
+        granted = newStatus.isGranted;
+      } else {
+        granted = status.isGranted;
+      }
+    }
+
+    if (granted) {
+      await box.put('notifications_enabled', true);
+    }
+
+    return granted;
   }
 }

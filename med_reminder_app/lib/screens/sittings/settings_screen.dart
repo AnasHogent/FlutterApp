@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +12,7 @@ import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/theme/theme_provider.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 final sl = GetIt.instance;
@@ -22,7 +26,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late Box settingsBox;
-  bool isNotificationsEnabled = true;
+  bool isNotificationsEnabled = false;
 
   @override
   void initState() {
@@ -35,6 +39,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Future<bool> _checkAndRequestNotificationPermission() async {
+    final notificationService = sl<NotificationService>();
+
+    final granted = await notificationService.requestPermissionIfNeeded();
+    if (!granted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primaryColor,
+          content: const Text(
+            '🔕 Notification permission denied.',
+            style: TextStyle(color: Colors.white),
+          ),
+          action: SnackBarAction(
+            label: 'Open Settings',
+            textColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundDark,
+            onPressed: () async {
+              await openAndroidNotificationSettings();
+            },
+          ),
+        ),
+      );
+    }
+    return granted;
+  }
+
+  Future<void> openAndroidNotificationSettings() async {
+    if (Platform.isAndroid) {
+      final info = await PackageInfo.fromPlatform();
+
+      final intent = AndroidIntent(
+        action: 'android.settings.APP_NOTIFICATION_SETTINGS',
+        arguments: {'android.provider.extra.APP_PACKAGE': info.packageName},
+      );
+
+      await intent.launch();
+    }
+  }
+
   Future<void> rescheduleAllReminders() async {
     final box = Hive.box<MedicationReminder>('medications');
     final notificationService = sl<NotificationService>();
@@ -45,6 +88,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void toggleNotifications(bool value) async {
+    if (value) {
+      final granted = await _checkAndRequestNotificationPermission();
+      if (!granted) return;
+    }
     setState(() {
       isNotificationsEnabled = value;
       settingsBox.put('notifications_enabled', value);
