@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
+import 'package:med_reminder_app/core/services/sync_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
@@ -147,6 +148,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
     // Hive propleem
     await notificationService.updateReminder(updatedReminder);
+    await sl<SyncService>().trySyncOne(updatedReminder);
     await updatedReminder.save();
     if (!mounted) return;
     ScaffoldMessenger.of(

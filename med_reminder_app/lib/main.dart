@@ -5,6 +5,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/router_generation_congig.dart';
+import 'package:med_reminder_app/core/services/background_sync.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/theme_data.dart';
 import 'package:med_reminder_app/core/theme/theme_provider.dart';
@@ -28,7 +29,10 @@ Future<void> main() async {
   final String localTimeZone = await FlutterTimezone.getLocalTimezone();
   tz.setLocalLocation(tz.getLocation(localTimeZone));
 
+  await scheduleDailyBackgroundSync();
+
   await initDI();
+
   await sl<NotificationService>().getPendingNotifications();
 
   runApp(

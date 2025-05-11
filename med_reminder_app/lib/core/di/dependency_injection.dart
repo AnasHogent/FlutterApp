@@ -1,52 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:hive/hive.dart';
-import 'package:med_reminder_app/models/medication_reminder.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
+import 'package:med_reminder_app/core/services/notification_service.dart';
+import 'package:med_reminder_app/core/services/sync_service.dart';
+import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
+import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 
-class SyncService {
-  final _firestore = FirebaseFirestore.instance;
+final sl = GetIt.instance;
 
-  Future<void> trySyncOne(MedicationReminder reminder) async {
-    if (!await _hasInternet()) return;
-    if (reminder.isSynced) return;
+Future<void> initDI() async {
+  // Auth
+  sl.registerSingleton<AuthRepo>(AuthRepo());
+  sl.registerFactory(() => AuthCubit(sl<AuthRepo>()));
 
-    try {
-      await _firestore
-          .collection('reminders')
-          .doc(reminder.id)
-          .set(reminder.toJson());
+  // firebase
+  sl.registerLazySingleton(() => FirebaseFirestore.instance);
+  sl.registerLazySingleton(() => SyncService(sl<FirebaseFirestore>()));
 
-      reminder.isSynced = true;
-      await reminder.save();
-    } catch (_) {
-      // Je kunt eventueel logging doen hier
-    }
-  }
+  // Notificaties
+  final notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final notificationService = NotificationService(notificationsPlugin);
 
-  Future<void> syncAllPending() async {
-    if (!await _hasInternet()) return;
+  await notificationService.initialize();
 
-    final box = Hive.box<MedicationReminder>('medications');
-    final unsynced = box.values.where((r) => !r.isSynced).toList();
-
-    for (final reminder in unsynced) {
-      await trySyncOne(reminder);
-    }
-  }
-
-  Future<bool> _hasInternet() async {
-    final result = await Connectivity().checkConnectivity();
-    return result != ConnectivityResult.none;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'times': times,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate?.toIso8601String(),
-      'repeatDays': repeatDays,
-    };
-  }
+  sl.registerSingleton<FlutterLocalNotificationsPlugin>(notificationsPlugin);
+  sl.registerSingleton<NotificationService>(notificationService);
 }

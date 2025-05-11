@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
+import 'package:med_reminder_app/core/services/sync_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
@@ -149,12 +152,19 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       final box = Hive.box<MedicationReminder>('medications');
       await box.add(reminder);
       await sl<NotificationService>().addReminder(reminder);
+      await sl<SyncService>().trySyncOne(reminder);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reminder saved successfully!')),
       );
       if (!mounted) return;
       Navigator.pop(context);
+    }
+
+    void startBackgroundSync() {
+      Timer.periodic(Duration(hours: 6), (_) {
+        sl<SyncService>().syncAllPending();
+      });
     }
   }
 
