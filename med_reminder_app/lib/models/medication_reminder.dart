@@ -34,4 +34,14 @@ class MedicationReminder extends HiveObject {
     required this.repeatDays,
     required this.isSynced,
   });
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'times': times,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'repeatDays': repeatDays,
+    };
+  }
 }

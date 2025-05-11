@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
-import 'package:med_reminder_app/core/di/dependency_injection.dart';
+import 'package:med_reminder_app/core/di/dependency_injection.dart' as di;
 import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
@@ -48,7 +48,7 @@ class RouterGenerationCongig {
         name: AppRoutes.loginScreen,
         builder:
             (context, state) => BlocProvider(
-              create: (context) => sl<AuthCubit>(),
+              create: (context) => di.sl<AuthCubit>(),
               child: const LoginScreen(),
             ),
       ),
@@ -57,7 +57,7 @@ class RouterGenerationCongig {
         name: AppRoutes.registerScreen,
         builder:
             (context, state) => BlocProvider(
-              create: (context) => sl<AuthCubit>(),
+              create: (context) => di.sl<AuthCubit>(),
               child: const RegisterScreen(),
             ),
       ),
@@ -66,7 +66,7 @@ class RouterGenerationCongig {
         name: AppRoutes.forgetPasswordScreen,
         builder:
             (context, state) => BlocProvider.value(
-              value: sl<AuthCubit>(),
+              value: di.sl<AuthCubit>(),
               child: const ForgetPasswordScreen(),
             ),
       ),
@@ -75,7 +75,7 @@ class RouterGenerationCongig {
         name: AppRoutes.homeScreen,
         builder:
             (context, state) => BlocProvider.value(
-              value: sl<AuthCubit>(),
+              value: di.sl<AuthCubit>(),
               child: const HomeScreen(),
             ),
       ),

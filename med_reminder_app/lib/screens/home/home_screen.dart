@@ -8,6 +8,7 @@ import 'package:med_reminder_app/core/routing/app_routes.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
+import 'package:med_reminder_app/core/utils/time_utils.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
@@ -139,7 +140,8 @@ class HomeScreen extends StatelessWidget {
                                   med.times.map((time) {
                                     return Chip(
                                       label: Text(
-                                        time,
+                                        parseTimeOfDay(time)?.format(context) ??
+                                            time,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.labelLarge?.copyWith(
@@ -151,6 +153,7 @@ class HomeScreen extends StatelessWidget {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
+
                                       backgroundColor: Theme.of(
                                         context,
                                       ).colorScheme.primary.withAlpha(128),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
@@ -8,6 +10,8 @@ import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:ulid/ulid.dart';
+
+final sl = GetIt.instance;
 
 class AddMedicationScreen extends StatefulWidget {
   const AddMedicationScreen({super.key});
@@ -126,7 +130,12 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         return;
       }
       List<String> formattedTimes =
-          times.map((t) => t.format(context)).toList();
+          times
+              .map(
+                (t) =>
+                    "${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}",
+              )
+              .toList();
 
       final reminder = MedicationReminder(
         id: Ulid().toString(),
@@ -139,6 +148,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       );
       final box = Hive.box<MedicationReminder>('medications');
       await box.add(reminder);
+      await sl<NotificationService>().addReminder(reminder);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reminder saved successfully!')),

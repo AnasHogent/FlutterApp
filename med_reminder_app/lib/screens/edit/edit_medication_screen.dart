@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:med_reminder_app/core/di/dependency_injection.dart';
+import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
@@ -7,6 +9,8 @@ import 'package:med_reminder_app/core/widgets/custom_field_with_title.dart';
 import 'package:med_reminder_app/core/widgets/custom_text_field.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
+
+final notificationService = sl<NotificationService>();
 
 class EditMedicationScreen extends StatefulWidget {
   final MedicationReminder reminder;
@@ -129,13 +133,20 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     final updatedReminder =
         widget.reminder
           ..name = medicationNameController.text.trim()
-          ..times = times.map((t) => t.format(context)).toList()
+          ..times =
+              times
+                  .map(
+                    (t) =>
+                        "${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}",
+                  )
+                  .toList()
           ..startDate = startDate!
           ..endDate = endDate
           ..repeatDays = repeatEveryXDays
           ..isSynced = false;
 
     // Hive propleem
+    await notificationService.updateReminder(updatedReminder);
     await updatedReminder.save();
     if (!mounted) return;
     ScaffoldMessenger.of(
@@ -147,6 +158,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   }
 
   void _delete() async {
+    await notificationService.cancelReminder(widget.reminder);
     await widget.reminder.delete();
     if (!mounted) return;
     Navigator.pop(context);
@@ -161,12 +173,17 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     times.addAll(
       reminder.times.map((t) {
         final parts = t.split(":");
-        return TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
-      }),
+        if (parts.length != 2) return null;
+
+        final hour = int.tryParse(parts[0].trim());
+        final minute = int.tryParse(parts[1].trim());
+
+        if (hour == null || minute == null) return null;
+
+        return TimeOfDay(hour: hour, minute: minute);
+      }).whereType<TimeOfDay>(),
     );
+
     startDate = reminder.startDate;
     endDate = reminder.endDate;
   }

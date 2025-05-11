@@ -1,12 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/theme/theme_provider.dart';
+import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:provider/provider.dart';
+
+final sl = GetIt.instance;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -30,15 +35,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void toggleNotifications(bool value) {
+  Future<void> rescheduleAllReminders() async {
+    final box = Hive.box<MedicationReminder>('medications');
+    final notificationService = sl<NotificationService>();
+
+    for (final reminder in box.values) {
+      await notificationService.scheduleMedicationReminder(reminder);
+    }
+  }
+
+  void toggleNotifications(bool value) async {
     setState(() {
       isNotificationsEnabled = value;
       settingsBox.put('notifications_enabled', value);
-
-      // if (!value) {
-      //   flutterLocalNotificationsPlugin.cancelAll();
-      // }
     });
+    final notificationService = sl<NotificationService>();
+    if (value) {
+      await rescheduleAllReminders();
+      //await notificationService.showNotification(
+      //  id: 0,
+      // title: 'Notifications Enabled',
+      // body: 'You will now receive reminders.',
+      //);
+    } else {
+      await notificationService.cancelAllNotifications();
+    }
   }
 
   void toggleDarkMode(bool value) {
