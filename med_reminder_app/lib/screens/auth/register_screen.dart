@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.message)));
-              GoRouter.of(context).pushNamed(AppRoutes.loginScreen);
+              GoRouter.of(context).pushNamed(AppRoutes.homeScreen);
             } else if (state is AuthError) {
               ScaffoldMessenger.of(
                 context,

@@ -119,11 +119,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _handleLogout() async {
     final user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
       await FirebaseAuth.instance.signOut();
+      await Hive.box<MedicationReminder>('medications').clear();
+
+      final notificationService = sl<NotificationService>();
+      await notificationService.cancelAllNotifications();
+
+      if (!mounted) return;
+      context.go('/onboardingScreen');
+    } else {
+      context.go('/loginScreen');
     }
-    if (!mounted) return;
-    context.go('/onboardingScreen');
   }
 
   Future<bool> _checkAndRequestExactAlarmPermission() async {
@@ -186,7 +194,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor:
+            FirebaseAuth.instance.currentUser != null
+                ? Colors.red
+                : AppColors.primaryColor,
         shape: const CircleBorder(),
         onPressed: _handleLogout,
         child: Icon(

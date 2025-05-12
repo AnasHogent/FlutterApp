@@ -44,4 +44,19 @@ class MedicationReminder extends HiveObject {
       'repeatDays': repeatDays,
     };
   }
+
+  factory MedicationReminder.fromJson(Map<String, dynamic> json) {
+    return MedicationReminder(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      times: List<String>.from(json['times'] ?? []),
+      startDate: DateTime.parse(json['startDate'] as String),
+      endDate:
+          json['endDate'] != null
+              ? DateTime.parse(json['endDate'] as String)
+              : null,
+      repeatDays: json['repeatDays'] as int,
+      isSynced: json['isSynced'] ?? true,
+    );
+  }
 }

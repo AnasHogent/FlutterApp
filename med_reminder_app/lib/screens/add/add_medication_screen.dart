@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -150,7 +148,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         isSynced: false,
       );
       final box = Hive.box<MedicationReminder>('medications');
-      await box.add(reminder);
+      final exists = box.values.any((r) => r.id == reminder.id);
+      if (!exists) {
+        await box.add(reminder);
+      }
+
       await sl<NotificationService>().addReminder(reminder);
       await sl<SyncService>().trySyncOne(reminder);
       if (!mounted) return;
@@ -159,12 +161,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       );
       if (!mounted) return;
       Navigator.pop(context);
-    }
-
-    void startBackgroundSync() {
-      Timer.periodic(Duration(hours: 6), (_) {
-        sl<SyncService>().syncAllPending();
-      });
     }
   }
 

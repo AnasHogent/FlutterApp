@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
 import 'package:med_reminder_app/screens/auth/models/user_model.dart';
 
 class AuthRepo {
@@ -85,6 +87,42 @@ class AuthRepo {
       return const Right("🚪 Logged out successfully");
     } catch (e) {
       return Left("❌ Logout failed: $e");
+    }
+  }
+
+  Future<Either<String, UserModel>> loginWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return const Left("Google sign-in cancelled");
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      final userModel = UserModel(
+        uid: userCredential.user!.uid,
+        email: userCredential.user!.email ?? '',
+        username: userCredential.user!.displayName ?? 'GoogleUser',
+      );
+
+      final firestore = sl<FirebaseFirestore>();
+
+      await firestore
+          .collection('users')
+          .doc(userModel.uid)
+          .set(userModel.toJson(), SetOptions(merge: true));
+
+      return Right(userModel);
+    } catch (e) {
+      return Left("Google login failed: $e");
     }
   }
 }

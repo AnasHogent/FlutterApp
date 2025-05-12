@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
+import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/widgates/custom_icon_button.dart';
 
 class CustomOrLoginWidgate extends StatelessWidget {
@@ -11,7 +13,12 @@ class CustomOrLoginWidgate extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         CustomIconButton(iconPath: AppAssets.facebookSVGIcon, onTap: () {}),
-        CustomIconButton(iconPath: AppAssets.googleSVGIcon, onTap: () {}),
+        CustomIconButton(
+          iconPath: AppAssets.googleSVGIcon,
+          onTap: () {
+            context.read<AuthCubit>().loginWithGoogle();
+          },
+        ),
         CustomIconButton(iconPath: AppAssets.appleSVGIcon, onTap: () {}),
       ],
     );

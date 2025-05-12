@@ -52,6 +52,25 @@ class SyncService {
     }
   }
 
+  Future<void> deleteReminder(String id) async {
+    if (!await _hasInternet()) return;
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('reminders')
+          .doc(id)
+          .delete();
+      debugPrint("Reminder $id verwijderd uit Firestore");
+    } catch (e) {
+      debugPrint("Fout bij verwijderen reminder $id: $e");
+    }
+  }
+
   Future<bool> _hasInternet() async {
     final List<ConnectivityResult> result =
         await Connectivity().checkConnectivity();

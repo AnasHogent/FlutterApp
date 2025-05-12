@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,8 +16,42 @@ import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadRemindersFromFirestore();
+  }
+
+  Future<void> _loadRemindersFromFirestore() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final firestore = FirebaseFirestore.instance;
+    final box = Hive.box<MedicationReminder>('medications');
+
+    final snapshot =
+        await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('reminders')
+            .get();
+
+    for (final doc in snapshot.docs) {
+      final reminder = MedicationReminder.fromJson(doc.data());
+      final alreadyExists = box.values.any((r) => r.id == reminder.id);
+      if (!alreadyExists) {
+        await box.add(reminder);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

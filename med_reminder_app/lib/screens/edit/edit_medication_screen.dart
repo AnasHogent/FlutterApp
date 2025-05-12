@@ -161,6 +161,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
   void _delete() async {
     await notificationService.cancelReminder(widget.reminder);
+    await sl<SyncService>().deleteReminder(widget.reminder.id);
     await widget.reminder.delete();
     if (!mounted) return;
     Navigator.pop(context);

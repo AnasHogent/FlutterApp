@@ -33,7 +33,6 @@ Future<void> main() async {
 
   await initDI();
 
-  await sl<NotificationService>().requestPermissionIfNeeded();
   await sl<NotificationService>().getPendingNotifications();
   //await sl<UserSessionService>().restoreSession();
 
