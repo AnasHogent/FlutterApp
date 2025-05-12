@@ -13,11 +13,11 @@ import 'package:med_reminder_app/screens/auth/register_screen.dart';
 import 'package:med_reminder_app/screens/edit/edit_medication_screen.dart';
 import 'package:med_reminder_app/screens/home/home_screen.dart';
 import 'package:med_reminder_app/screens/onboarding_screen.dart';
+import 'package:med_reminder_app/screens/permission_gate_screen.dart';
 import 'package:med_reminder_app/screens/sittings/settings_screen.dart';
 
 class RouterGenerationCongig {
   static final Box settingsBox = Hive.box('settings');
-
   static String _getInitialRoute() {
     final hasSeenOnboarding = settingsBox.get(
       'seen_onboarding',
@@ -25,6 +25,20 @@ class RouterGenerationCongig {
     );
     final isGuest = settingsBox.get('is_guest', defaultValue: false);
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+    final notificationGranted = settingsBox.get(
+      'notifications_enabled',
+      defaultValue: false,
+    );
+    final exactAlarmGranted = settingsBox.get(
+      'exact_alarm_granted',
+      defaultValue: false,
+    );
+
+    final permissionsGranted = notificationGranted && exactAlarmGranted;
+
+    if (!permissionsGranted) {
+      return AppRoutes.permissionsScreen;
+    }
 
     if (isLoggedIn || isGuest) {
       return AppRoutes.homeScreen;
@@ -38,6 +52,11 @@ class RouterGenerationCongig {
   static final GoRouter goRouter = GoRouter(
     initialLocation: _getInitialRoute(),
     routes: [
+      GoRoute(
+        path: AppRoutes.permissionsScreen,
+        name: AppRoutes.permissionsScreen,
+        builder: (context, state) => const PermissionsScreen(),
+      ),
       GoRoute(
         path: AppRoutes.onboardingScreen,
         name: AppRoutes.onboardingScreen,

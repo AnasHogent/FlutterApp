@@ -7,4 +7,5 @@ class AppRoutes {
   static const String addMedicationScreen = '/addMedicationScreen';
   static const String editMedicationScreen = '/editMedicationScreen';
   static const String settingsScreen = '/settingsScreen';
+  static const String permissionsScreen = '/permissionsScreen';
 }

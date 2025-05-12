@@ -129,6 +129,7 @@ class NotificationService {
     }
 
     if (granted) {
+      print(granted);
       await box.put('notifications_enabled', true);
     }
 

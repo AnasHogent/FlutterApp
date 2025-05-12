@@ -72,6 +72,20 @@ class HomeScreen extends StatelessWidget {
               Hive.box<MedicationReminder>('medications').listenable(),
           builder: (context, Box<MedicationReminder> box, _) {
             final meds = box.values.toList();
+            if (meds.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 100),
+                  child: Text(
+                    "No medication reminders yet.",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 20.sp,
+                    ),
+                  ),
+                ),
+              );
+            }
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
