@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,22 +28,62 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late Box settingsBox;
   bool isNotificationsEnabled = false;
+  PackageInfo? _packageInfo;
 
   @override
   void initState() {
     super.initState();
     settingsBox = Hive.box('settings');
-
     isNotificationsEnabled = settingsBox.get(
       'notifications_enabled',
-      defaultValue: true,
+      defaultValue: false,
     );
+    _loadPackageInfo();
+  }
+
+  Future<void> _loadPackageInfo() async {
+    _packageInfo = await PackageInfo.fromPlatform();
+  }
+
+  Future<void> toggleNotifications(bool value) async {
+    final notificationService = sl<NotificationService>();
+
+    if (value) {
+      final granted = await _checkAndRequestNotificationPermission();
+      if (!granted) return;
+
+      final exactGranted = await _checkAndRequestExactAlarmPermission();
+      if (!exactGranted) return;
+    }
+
+    await settingsBox.put('notifications_enabled', value);
+    setState(() => isNotificationsEnabled = value);
+
+    if (value) {
+      await _rescheduleAllReminders();
+    } else {
+      await notificationService.cancelAllNotifications();
+    }
+  }
+
+  Future<void> toggleDarkMode(bool value) async {
+    context.read<ThemeProvider>().toggleTheme(value);
+    setState(() {});
+  }
+
+  Future<void> _rescheduleAllReminders() async {
+    final reminders = Hive.box<MedicationReminder>('medications').values;
+    final notificationService = sl<NotificationService>();
+
+    for (final reminder in reminders) {
+      await notificationService.scheduleMedicationReminder(reminder);
+    }
   }
 
   Future<bool> _checkAndRequestNotificationPermission() async {
     final notificationService = sl<NotificationService>();
-
     final granted = await notificationService.requestPermissionIfNeeded();
+
     if (!granted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -55,67 +96,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: 'Open Settings',
             textColor: AppColors.whiteColor,
             backgroundColor: AppColors.backgroundDark,
-            onPressed: () async {
-              await openAndroidNotificationSettings();
-            },
+            onPressed: () => _openNotificationSettings(),
           ),
         ),
       );
     }
+
     return granted;
   }
 
-  Future<void> openAndroidNotificationSettings() async {
-    if (Platform.isAndroid) {
-      final info = await PackageInfo.fromPlatform();
-
+  Future<void> _openNotificationSettings() async {
+    if (Platform.isAndroid && _packageInfo != null) {
       final intent = AndroidIntent(
         action: 'android.settings.APP_NOTIFICATION_SETTINGS',
-        arguments: {'android.provider.extra.APP_PACKAGE': info.packageName},
+        arguments: {
+          'android.provider.extra.APP_PACKAGE': _packageInfo!.packageName,
+        },
       );
-
       await intent.launch();
     }
   }
 
-  Future<void> rescheduleAllReminders() async {
-    final box = Hive.box<MedicationReminder>('medications');
-    final notificationService = sl<NotificationService>();
-
-    for (final reminder in box.values) {
-      await notificationService.scheduleMedicationReminder(reminder);
+  Future<void> _handleLogout() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseAuth.instance.signOut();
     }
+    if (!mounted) return;
+    context.go('/onboardingScreen');
   }
 
-  void toggleNotifications(bool value) async {
-    if (value) {
-      final granted = await _checkAndRequestNotificationPermission();
-      if (!granted) return;
-    }
-    setState(() {
-      isNotificationsEnabled = value;
-      settingsBox.put('notifications_enabled', value);
-    });
+  Future<bool> _checkAndRequestExactAlarmPermission() async {
     final notificationService = sl<NotificationService>();
-    if (value) {
-      await rescheduleAllReminders();
-      //await notificationService.showNotification(
-      //  id: 0,
-      // title: 'Notifications Enabled',
-      // body: 'You will now receive reminders.',
-      //);
-    } else {
-      await notificationService.cancelAllNotifications();
+    final granted = await notificationService.hasExactAlarmPermission();
+
+    if (!granted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primaryColor,
+          content: const Text(
+            '⏰ Exact alarm permission required to schedule reminders.',
+            style: TextStyle(color: Colors.white),
+          ),
+          action: SnackBarAction(
+            label: 'Open Settings',
+            textColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundDark,
+            onPressed: () => _openExactAlarmSettings(),
+          ),
+        ),
+      );
     }
+
+    return granted;
   }
 
-  void toggleDarkMode(bool value) {
-    context.read<ThemeProvider>().toggleTheme(value);
-    setState(() {});
+  Future<void> _openExactAlarmSettings() async {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt >= 31) {
+      final intent = AndroidIntent(
+        action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+      );
+      await intent.launch();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode =
+        context.watch<ThemeProvider>().themeMode == ThemeMode.dark;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
@@ -128,8 +178,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             fontWeight: FontWeight.w400,
           ),
         ),
-        actions: [
-          const Padding(
+        actions: const [
+          Padding(
             padding: EdgeInsets.only(right: 16),
             child: Icon(Icons.settings, color: Colors.white, size: 30),
           ),
@@ -138,16 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primaryColor,
         shape: const CircleBorder(),
-        onPressed: () async {
-          final user = FirebaseAuth.instance.currentUser;
-
-          if (user != null) {
-            // await Hive.box('medications').clear();
-            await FirebaseAuth.instance.signOut();
-          }
-          if (!context.mounted) return;
-          GoRouter.of(context).go('/onboardingScreen');
-        },
+        onPressed: _handleLogout,
         child: Icon(
           FirebaseAuth.instance.currentUser != null
               ? Icons.logout
@@ -156,52 +197,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 28,
         ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 25),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Enable Notifications",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20.sp,
-                  ),
-                ),
-                Switch(
-                  value: isNotificationsEnabled,
-                  onChanged: toggleNotifications,
-                  activeColor: AppColors.primaryColor,
-                ),
-              ],
+            _buildSwitchRow(
+              label: "Enable Notifications",
+              value: isNotificationsEnabled,
+              onChanged: toggleNotifications,
             ),
             const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Dark Mode",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20.sp,
-                  ),
-                ),
-                Switch(
-                  value:
-                      context.watch<ThemeProvider>().themeMode ==
-                      ThemeMode.dark,
-                  onChanged: toggleDarkMode,
-                  activeColor: AppColors.primaryColor,
-                ),
-              ],
+            _buildSwitchRow(
+              label: "Dark Mode",
+              value: isDarkMode,
+              onChanged: toggleDarkMode,
             ),
             const Divider(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSwitchRow({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            fontSize: 20.sp,
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: AppColors.primaryColor,
+        ),
+      ],
     );
   }
 }
