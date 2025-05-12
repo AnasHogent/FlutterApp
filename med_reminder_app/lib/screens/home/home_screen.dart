@@ -6,7 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
+import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
@@ -49,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final alreadyExists = box.values.any((r) => r.id == reminder.id);
       if (!alreadyExists) {
         await box.add(reminder);
+        await sl<NotificationService>().addReminder(reminder);
       }
     }
   }

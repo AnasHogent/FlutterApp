@@ -216,4 +216,15 @@ class NotificationService {
     }
     return true;
   }
+
+  Future<void> rescheduleAllReminders() async {
+    await cancelAllNotifications();
+
+    final box = Hive.box<MedicationReminder>('medications');
+    final reminders = box.values.toList();
+
+    for (final reminder in reminders) {
+      await scheduleMedicationReminder(reminder);
+    }
+  }
 }
