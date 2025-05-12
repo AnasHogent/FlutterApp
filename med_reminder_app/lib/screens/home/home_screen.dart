@@ -29,7 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadRemindersFromFirestore();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadRemindersFromFirestore();
+    });
   }
 
   Future<void> _loadRemindersFromFirestore() async {
