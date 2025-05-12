@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
@@ -66,34 +69,52 @@ class NotificationService {
   }
 
   Future<void> scheduleMedicationReminder(MedicationReminder reminder) async {
-    final plugin = _plugin;
+    if (!await _hasExactAlarmPermission()) {
+      await _openExactAlarmSettings();
+      return;
+    }
 
     for (int i = 0; i < reminder.times.length; i++) {
-      final timeString = reminder.times[i];
-      final timeParts = timeString.split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
+      await _scheduleReminder(reminder, i);
+    }
+  }
 
-      tz.TZDateTime scheduledDate = _nextInstanceOfTime(hour, minute);
+  Future<void> addReminder(MedicationReminder reminder) async {
+    if (!await _hasExactAlarmPermission()) {
+      await _openExactAlarmSettings();
+      return;
+    }
 
-      if (scheduledDate.isBefore(
-        tz.TZDateTime.from(reminder.startDate, tz.local),
-      )) {
-        scheduledDate = scheduledDate.add(Duration(days: 1));
-      }
+    for (int i = 0; i < reminder.times.length; i++) {
+      await _scheduleReminder(reminder, i);
+    }
+  }
 
-      if (reminder.endDate != null &&
-          scheduledDate.isAfter(
-            tz.TZDateTime.from(reminder.endDate!, tz.local),
-          )) {
-        continue;
-      }
+  Future<void> _scheduleReminder(MedicationReminder reminder, int index) async {
+    final timeParts = reminder.times[index].split(':');
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
 
-      await plugin.zonedSchedule(
-        reminder.id.hashCode + i,
+    tz.TZDateTime scheduledDate = _nextInstanceOfTime(hour, minute);
+
+    if (scheduledDate.isBefore(
+      tz.TZDateTime.from(reminder.startDate, tz.local),
+    )) {
+      scheduledDate = scheduledDate.add(Duration(days: 1));
+    }
+
+    if (reminder.endDate != null &&
+        scheduledDate.isAfter(
+          tz.TZDateTime.from(reminder.endDate!, tz.local),
+        )) {
+      return;
+    }
+
+    try {
+      await _plugin.zonedSchedule(
+        reminder.id.hashCode + index,
         'Time to take ${reminder.name}',
         "Don't forget to take your medication",
-        //'Dosage: ${reminder.dosage}',
         scheduledDate,
         const NotificationDetails(
           android: AndroidNotificationDetails(
@@ -107,11 +128,15 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
+    } catch (e) {
+      debugPrint(
+        'Error scheduling reminder for ${reminder.name} at $hour:$minute: $e',
+      );
     }
   }
 
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    final now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -126,59 +151,9 @@ class NotificationService {
     return scheduledDate;
   }
 
-  Future<void> requestNotificationPermission() async {
-    if (await Permission.notification.isDenied) {
-      await Permission.notification.request();
-    }
-  }
-
-  Future<void> addReminder(MedicationReminder reminder) async {
-    for (int i = 0; i < reminder.times.length; i++) {
-      final timeParts = reminder.times[i].split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      tz.TZDateTime scheduledDate = _nextInstanceOfTime(hour, minute);
-
-      if (scheduledDate.isBefore(
-        tz.TZDateTime.from(reminder.startDate, tz.local),
-      )) {
-        scheduledDate = scheduledDate.add(Duration(days: 1));
-      }
-
-      if (reminder.endDate != null &&
-          scheduledDate.isAfter(
-            tz.TZDateTime.from(reminder.endDate!, tz.local),
-          )) {
-        continue;
-      }
-
-      final int id = reminder.id.hashCode + i;
-
-      await _plugin.zonedSchedule(
-        id,
-        'Time to take ${reminder.name}',
-        "Don't forget to take your medication",
-        scheduledDate,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'med_channel',
-            'Medication Reminders',
-            channelDescription: 'Reminders to take your medication',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-    }
-  }
-
   Future<void> cancelReminder(MedicationReminder reminder) async {
     for (int i = 0; i < reminder.times.length; i++) {
-      final notificationId = reminder.id.hashCode + i;
-      await _plugin.cancel(notificationId);
+      await _plugin.cancel(reminder.id.hashCode + i);
     }
   }
 
@@ -193,7 +168,6 @@ class NotificationService {
 
   Future<bool> requestPermissionIfNeeded() async {
     final box = await Hive.openBox('settings');
-
     if (!box.containsKey('notifications_enabled')) {
       await box.put('notifications_enabled', false);
     }
@@ -201,9 +175,7 @@ class NotificationService {
     bool granted = false;
 
     if (Platform.isAndroid) {
-      final deviceInfo = DeviceInfoPlugin();
-      final androidInfo = await deviceInfo.androidInfo;
-
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
       if (androidInfo.version.sdkInt >= 33) {
         final androidPlugin =
             _plugin
@@ -220,8 +192,7 @@ class NotificationService {
       if (status.isDenied ||
           status.isRestricted ||
           status.isPermanentlyDenied) {
-        final newStatus = await Permission.notification.request();
-        granted = newStatus.isGranted;
+        granted = (await Permission.notification.request()).isGranted;
       } else {
         granted = status.isGranted;
       }
@@ -232,5 +203,30 @@ class NotificationService {
     }
 
     return granted;
+  }
+
+  Future<bool> _hasExactAlarmPermission() async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      if (androidInfo.version.sdkInt >= 31) {
+        final androidPlugin =
+            _plugin
+                .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+        return await androidPlugin?.requestExactAlarmsPermission() ?? false;
+      }
+    }
+    return true; // iOS or Android < 12
+  }
+
+  Future<void> _openExactAlarmSettings() async {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt >= 31) {
+      final intent = AndroidIntent(
+        action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+      );
+      await intent.launch();
+    }
   }
 }
