@@ -216,11 +216,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }).toList(),
                             ),
                             const HeightSpace(6),
-                            Text(
-                              "Repeat every: ${med.repeatDays} day(s)",
-                              style: AppStyles.black15BoldStyle.copyWith(
-                                color: Colors.grey[700],
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Repeat every: ${med.repeatDays} day(s)",
+                                  style: AppStyles.black15BoldStyle.copyWith(
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.sync,
+                                  color:
+                                      med.isSynced ? Colors.green : Colors.red,
+                                  size: 20,
+                                ),
+                              ],
                             ),
                             const HeightSpace(6),
                           ],
