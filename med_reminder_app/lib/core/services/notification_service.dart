@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
@@ -23,7 +24,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      '@drawable/ic_stat_med',
     );
     final settings = InitializationSettings(android: androidSettings);
     await _plugin.initialize(settings);

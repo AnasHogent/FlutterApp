@@ -62,6 +62,12 @@ dependencies:
   android_alarm_manager_plus: ^4.0.7
   package_info_plus: ^8.3.0
   google_sign_in: ^6.3.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  #ios: true
+  image_path: "assets/icons/medicine-launcher.png"
 
 dev_dependencies:
   flutter_test:
