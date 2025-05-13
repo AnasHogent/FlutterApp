@@ -77,13 +77,21 @@ class NotificationService {
     }
   }
 
-  Future<void> updateReminder(MedicationReminder reminder) async {
-    await cancelReminder(reminder);
+  Future<void> updateReminder(
+    MedicationReminder reminder,
+    List<String> oldTimes,
+  ) async {
+    await cancelReminder(reminder, timesOverride: oldTimes);
     await addReminder(reminder);
   }
 
-  Future<void> cancelReminder(MedicationReminder reminder) async {
-    for (int i = 0; i < reminder.times.length; i++) {
+  Future<void> cancelReminder(
+    MedicationReminder reminder, {
+    List<String>? timesOverride,
+  }) async {
+    final times = timesOverride ?? reminder.times;
+
+    for (int i = 0; i < times.length; i++) {
       await _plugin.cancel(reminder.id.hashCode + i);
     }
   }

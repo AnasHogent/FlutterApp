@@ -131,6 +131,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         return;
       }
     }
+    final oldTimes = List<String>.from(widget.reminder.times);
+
     final updatedReminder =
         widget.reminder
           ..name = medicationNameController.text.trim()
@@ -147,7 +149,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
           ..isSynced = false;
 
     // Hive propleem
-    await notificationService.updateReminder(updatedReminder);
+    await notificationService.updateReminder(updatedReminder, oldTimes);
     await sl<SyncService>().trySyncOne(updatedReminder);
     await updatedReminder.save();
     if (!mounted) return;
