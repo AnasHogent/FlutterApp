@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/services/sync_service.dart';
@@ -155,7 +156,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     // Hive propleem
     await notificationService.updateReminder(updatedReminder, oldTimes);
     await sl<SyncService>().trySyncOne(updatedReminder);
-    await updatedReminder.save();
+
+    final box = Hive.box<MedicationReminder>('medications');
+    await box.put(widget.reminder.id, updatedReminder);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -166,8 +169,6 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         backgroundColor: AppColors.primaryColor,
       ),
     );
-
-    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

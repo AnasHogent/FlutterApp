@@ -12,7 +12,6 @@ import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
-import 'package:med_reminder_app/core/widgets/buttons/primary_outlined_button_widget.dart';
 import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -127,21 +126,22 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
               Text(
                 (notificationGranted && exactAlarmGranted)
-                    ? "Thank you! now continue"
+                    ? "🎉 Thank you! You're all set to continue."
                     : "To ensure the app works properly,\nplease grant the following permissions:",
                 style: AppStyles.white16w500Style.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.sp,
                 ),
                 textAlign: TextAlign.center,
               ),
               HeightSpace(10),
-              PrimaryOutlinedButtonWidget(
+              PrimaryButtonWidget(
                 buttonText: "Notification Permission",
                 onPressed: requestNotificationPermission,
               ),
               HeightSpace(15),
-              PrimaryOutlinedButtonWidget(
+              PrimaryButtonWidget(
                 buttonText: "Exact Alarm Permission",
                 onPressed: requestExactAlarmPermission,
               ),

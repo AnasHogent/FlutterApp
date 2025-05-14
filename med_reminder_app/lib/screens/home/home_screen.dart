@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final doc in snapshot.docs) {
       final reminder = MedicationReminder.fromJson(doc.data());
       final existing = box.get(reminder.id);
-      if (existing == null || existing.isDeleted == false) {
+      if (existing == null || existing.isDeleted) {
         await box.put(reminder.id, reminder);
       }
     }

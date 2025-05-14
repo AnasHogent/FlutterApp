@@ -21,7 +21,7 @@ Future<void> scheduleDailyBackgroundSync() async {
   await AndroidAlarmManager.initialize();
 
   await AndroidAlarmManager.periodic(
-    const Duration(seconds: 10),
+    const Duration(hours: 6),
     0,
     backgroundSyncCallback,
     exact: true,
