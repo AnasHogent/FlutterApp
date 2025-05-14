@@ -9,9 +9,12 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
+import 'package:med_reminder_app/core/services/sync_service.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
 import 'package:med_reminder_app/core/theme/theme_provider.dart';
+import 'package:med_reminder_app/core/widgets/buttons/primary_button_widget.dart';
+import 'package:med_reminder_app/core/widgets/spacing_widgates.dart';
 import 'package:med_reminder_app/models/medication_reminder.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -224,6 +227,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: toggleDarkMode,
             ),
             const Divider(),
+            HeightSpace(10),
+            PrimaryButtonWidget(
+              buttonText: 'Sync Data',
+              onPressed: () async {
+                final syncService = sl<SyncService>();
+
+                final hasNet = await syncService.hasInternet();
+                if (!hasNet) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'No internet connection. Sync failed.',
+                          style: TextStyle(color: AppColors.whiteColor),
+                        ),
+                        backgroundColor: AppColors.primaryColor,
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                await syncService.syncAllPending();
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Synchronization completed successfully.',
+                        style: TextStyle(color: AppColors.whiteColor),
+                      ),
+                      backgroundColor: AppColors.primaryColor,
+                    ),
+                  );
+                  if (Navigator.of(context).canPop()) {
+                    context.pop();
+                  }
+                }
+              },
+            ),
           ],
         ),
       ),

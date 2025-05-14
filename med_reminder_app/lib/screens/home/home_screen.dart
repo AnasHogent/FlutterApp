@@ -6,9 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:med_reminder_app/core/di/dependency_injection.dart';
 import 'package:med_reminder_app/core/routing/app_routes.dart';
-import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/styling/app_assets.dart';
 import 'package:med_reminder_app/core/styling/app_colors.dart';
 import 'package:med_reminder_app/core/styling/app_styles.dart';
@@ -50,10 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     for (final doc in snapshot.docs) {
       final reminder = MedicationReminder.fromJson(doc.data());
-      final alreadyExists = box.values.any((r) => r.id == reminder.id);
-      if (!alreadyExists) {
-        await box.add(reminder);
-        await sl<NotificationService>().addReminder(reminder);
+      final existing = box.get(reminder.id);
+      if (existing == null || existing.isDeleted == false) {
+        await box.put(reminder.id, reminder);
       }
     }
   }
@@ -124,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
           valueListenable:
               Hive.box<MedicationReminder>('medications').listenable(),
           builder: (context, Box<MedicationReminder> box, _) {
-            final meds = box.values.toList();
+            final meds = box.values.where((r) => !r.isDeleted).toList();
             if (meds.isEmpty) {
               return Center(
                 child: Padding(

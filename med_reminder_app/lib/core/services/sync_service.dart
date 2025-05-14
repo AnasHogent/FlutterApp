@@ -13,7 +13,7 @@ class SyncService {
   SyncService(this.firestore);
 
   Future<void> trySyncOne(MedicationReminder reminder) async {
-    if (!await _hasInternet()) return;
+    if (!await hasInternet()) return;
     if (reminder.isSynced) return;
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -35,43 +35,85 @@ class SyncService {
   }
 
   Future<void> syncAllPending() async {
-    if (!await _hasInternet()) return;
+    if (!await hasInternet()) return;
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
     final box = Hive.box<MedicationReminder>('medications');
-    final unsynced = box.values.where((r) => !r.isSynced).toList();
+    final localReminders = box.values.toList();
 
-    for (final reminder in unsynced) {
+    for (final reminder in localReminders) {
       try {
-        await trySyncOne(reminder);
+        final docRef = firestore
+            .collection('users')
+            .doc(uid)
+            .collection('reminders')
+            .doc(reminder.id);
+
+        if (reminder.isDeleted) {
+          await docRef.delete();
+          await reminder.delete();
+        } else if (!reminder.isSynced) {
+          await docRef.set(reminder.toJson());
+          reminder.isSynced = true;
+          await reminder.save();
+        }
       } catch (e) {
-        debugPrint('Sync fout bij ${reminder.id}: $e');
+        debugPrint("Sync fout bij ${reminder.id}: $e");
       }
+    }
+
+    try {
+      final snapshot =
+          await firestore
+              .collection('users')
+              .doc(uid)
+              .collection('reminders')
+              .get();
+
+      for (final doc in snapshot.docs) {
+        if (!box.containsKey(doc.id)) {
+          final newReminder = MedicationReminder.fromJson(doc.data());
+          await box.put(newReminder.id, newReminder);
+          debugPrint("Reminder toegevoegd vanuit Firestore: ${newReminder.id}");
+        }
+      }
+    } catch (e) {
+      debugPrint("Fout bij ophalen Firestore reminders: $e");
     }
   }
 
-  Future<void> deleteReminder(String id) async {
-    if (!await _hasInternet()) return;
-
+  Future<void> deleteReminder(MedicationReminder reminder) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+
+    final box = Hive.box<MedicationReminder>('medications');
+
+    reminder.isDeleted = true;
+    reminder.isSynced = false;
+    await reminder.save();
+
+    if (!await hasInternet()) return;
 
     try {
       await firestore
           .collection('users')
           .doc(uid)
           .collection('reminders')
-          .doc(id)
+          .doc(reminder.id)
           .delete();
-      debugPrint("Reminder $id verwijderd uit Firestore");
+
+      await box.delete(reminder.id);
+      debugPrint(
+        "Reminder ${reminder.id} permanent verwijderd (Firestore & Hive)",
+      );
     } catch (e) {
-      debugPrint("Fout bij verwijderen reminder $id: $e");
+      debugPrint("Fout bij verwijderen reminder ${reminder.id}: $e");
     }
   }
 
-  Future<bool> _hasInternet() async {
+  Future<bool> hasInternet() async {
     final List<ConnectivityResult> result =
         await Connectivity().checkConnectivity();
     return result.contains(ConnectivityResult.mobile) ||

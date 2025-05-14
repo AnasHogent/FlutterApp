@@ -25,6 +25,9 @@ class MedicationReminder extends HiveObject {
   @HiveField(6)
   bool isSynced;
 
+  @HiveField(7)
+  bool isDeleted = false;
+
   MedicationReminder({
     required this.id,
     required this.name,
@@ -33,6 +36,7 @@ class MedicationReminder extends HiveObject {
     this.endDate,
     required this.repeatDays,
     required this.isSynced,
+    required this.isDeleted,
   });
   Map<String, dynamic> toJson() {
     return {
@@ -42,6 +46,7 @@ class MedicationReminder extends HiveObject {
       'startDate': startDate.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
       'repeatDays': repeatDays,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -57,6 +62,7 @@ class MedicationReminder extends HiveObject {
               : null,
       repeatDays: json['repeatDays'] as int,
       isSynced: json['isSynced'] ?? true,
+      isDeleted: json['isDeleted'] ?? true,
     );
   }
 }

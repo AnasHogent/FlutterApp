@@ -3,7 +3,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/services/sync_service.dart';
-import 'package:med_reminder_app/core/services/user_session_service.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 
@@ -11,20 +10,36 @@ final sl = GetIt.instance;
 
 Future<void> initDI() async {
   // Auth
-  sl.registerSingleton<AuthRepo>(AuthRepo());
-  sl.registerFactory(() => AuthCubit(sl<AuthRepo>()));
-  sl.registerSingleton<UserSessionService>(UserSessionService());
+  if (!sl.isRegistered<AuthRepo>()) {
+    sl.registerSingleton<AuthRepo>(AuthRepo());
+  }
 
-  // firebase
-  sl.registerLazySingleton(() => FirebaseFirestore.instance);
-  sl.registerLazySingleton(() => SyncService(sl<FirebaseFirestore>()));
+  if (!sl.isRegistered<AuthCubit>()) {
+    sl.registerFactory(() => AuthCubit(sl<AuthRepo>()));
+  }
+
+  // Firebase
+  if (!sl.isRegistered<FirebaseFirestore>()) {
+    sl.registerLazySingleton(() => FirebaseFirestore.instance);
+  }
+
+  if (!sl.isRegistered<SyncService>()) {
+    sl.registerLazySingleton(() => SyncService(sl<FirebaseFirestore>()));
+  }
 
   // Notificaties
-  final notificationsPlugin = FlutterLocalNotificationsPlugin();
-  final notificationService = NotificationService(notificationsPlugin);
+  if (!sl.isRegistered<FlutterLocalNotificationsPlugin>()) {
+    final notificationsPlugin = FlutterLocalNotificationsPlugin();
+    notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
-  await notificationService.initialize();
+    final notificationService = NotificationService(notificationsPlugin);
 
-  sl.registerSingleton<FlutterLocalNotificationsPlugin>(notificationsPlugin);
-  sl.registerSingleton<NotificationService>(notificationService);
+    await notificationService.initialize();
+
+    sl.registerSingleton<FlutterLocalNotificationsPlugin>(notificationsPlugin);
+    sl.registerSingleton<NotificationService>(notificationService);
+  }
 }

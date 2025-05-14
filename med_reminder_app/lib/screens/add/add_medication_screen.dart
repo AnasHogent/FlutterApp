@@ -150,11 +150,12 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         endDate: endDate,
         repeatDays: repeatEveryXDays,
         isSynced: false,
+        isDeleted: false,
       );
       final box = Hive.box<MedicationReminder>('medications');
       final exists = box.values.any((r) => r.id == reminder.id);
       if (!exists) {
-        await box.add(reminder);
+        await box.put(reminder.id, reminder);
       }
 
       await sl<NotificationService>().addReminder(reminder);
