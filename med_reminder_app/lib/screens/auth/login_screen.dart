@@ -43,18 +43,30 @@ class _LoginScreenState extends State<LoginScreen> {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) async {
               if (state is AuthSuccess) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.message,
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    backgroundColor: AppColors.primaryColor,
+                  ),
+                );
                 await Hive.box('settings').put('is_logged_in', true);
                 await Hive.box('settings').put('is_guest', false);
                 if (!context.mounted) return;
                 GoRouter.of(context).go(AppRoutes.homeScreen);
                 password.clear();
               } else if (state is AuthError) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.message,
+                      style: TextStyle(color: AppColors.whiteColor),
+                    ),
+                    backgroundColor: AppColors.primaryColor,
+                  ),
+                );
               }
             },
             builder: (context, state) {

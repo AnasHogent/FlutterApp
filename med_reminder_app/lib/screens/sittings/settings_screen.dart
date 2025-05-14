@@ -60,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => isNotificationsEnabled = value);
 
     if (value) {
-      await _rescheduleAllReminders();
+      await rescheduleAllReminders();
     } else {
       await notificationService.cancelAllNotifications();
     }
@@ -71,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
-  Future<void> _rescheduleAllReminders() async {
+  Future<void> rescheduleAllReminders() async {
     final reminders = Hive.box<MedicationReminder>('medications').values;
     final notificationService = sl<NotificationService>();
 
@@ -90,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: AppColors.primaryColor,
           content: const Text(
             '🔕 Notification permission denied.',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: AppColors.whiteColor),
           ),
           action: SnackBarAction(
             label: 'Open Settings',
@@ -144,7 +144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: AppColors.primaryColor,
           content: const Text(
             '⏰ Exact alarm permission required to schedule reminders.',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: AppColors.whiteColor),
           ),
           action: SnackBarAction(
             label: 'Open Settings',

@@ -44,14 +44,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         body: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is AuthSuccess) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.message,
+                    style: TextStyle(color: AppColors.whiteColor),
+                  ),
+                  backgroundColor: AppColors.primaryColor,
+                ),
+              );
               GoRouter.of(context).pushNamed(AppRoutes.homeScreen);
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.message,
+                    style: TextStyle(color: AppColors.whiteColor),
+                  ),
+                  backgroundColor: AppColors.primaryColor,
+                ),
+              );
             }
           },
           builder: (context, state) {

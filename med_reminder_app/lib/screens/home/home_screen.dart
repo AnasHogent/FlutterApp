@@ -98,14 +98,26 @@ class _HomeScreenState extends State<HomeScreen> {
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthLoggedOut) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.message,
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                backgroundColor: AppColors.primaryColor,
+              ),
+            );
             GoRouter.of(context).go(AppRoutes.loginScreen);
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.message,
+                  style: TextStyle(color: AppColors.whiteColor),
+                ),
+                backgroundColor: AppColors.primaryColor,
+              ),
+            );
           }
         },
         child: ValueListenableBuilder<Box<MedicationReminder>>(

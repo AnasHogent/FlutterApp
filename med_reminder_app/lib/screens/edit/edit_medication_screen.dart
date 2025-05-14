@@ -125,7 +125,11 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       if (times.isEmpty || startDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please select at least one time and a start date.'),
+            content: Text(
+              'Please select at least one time and a start date.',
+              style: TextStyle(color: AppColors.whiteColor),
+            ),
+            backgroundColor: AppColors.primaryColor,
           ),
         );
         return;
@@ -153,9 +157,15 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     await sl<SyncService>().trySyncOne(updatedReminder);
     await updatedReminder.save();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Medication updated')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Medication updated',
+          style: TextStyle(color: AppColors.whiteColor),
+        ),
+        backgroundColor: AppColors.primaryColor,
+      ),
+    );
 
     if (!mounted) return;
     Navigator.of(context).pop();
