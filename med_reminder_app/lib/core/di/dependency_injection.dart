@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:med_reminder_app/core/services/notification_service.dart';
 import 'package:med_reminder_app/core/services/sync_service.dart';
+import 'package:med_reminder_app/core/services/user_session_service.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_cubit.dart';
 import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 
@@ -41,5 +42,12 @@ Future<void> initDI() async {
 
     sl.registerSingleton<FlutterLocalNotificationsPlugin>(notificationsPlugin);
     sl.registerSingleton<NotificationService>(notificationService);
+  }
+
+  // User Session
+  if (!sl.isRegistered<UserSessionService>()) {
+    sl.registerLazySingleton(
+      () => UserSessionService(sl<NotificationService>(), sl<SyncService>()),
+    );
   }
 }

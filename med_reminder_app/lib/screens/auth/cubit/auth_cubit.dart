@@ -1,9 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:med_reminder_app/core/constants/data_saved.dart';
-import 'package:med_reminder_app/core/services/notification_service.dart';
-import 'package:med_reminder_app/models/medication_reminder.dart';
-import 'package:med_reminder_app/screens/add/add_medication_screen.dart';
+import 'package:med_reminder_app/core/di/dependency_injection.dart';
+import 'package:med_reminder_app/core/services/user_session_service.dart';
 import 'package:med_reminder_app/screens/auth/cubit/auth_state.dart';
 import 'package:med_reminder_app/screens/auth/repo/auth_repo.dart';
 
@@ -21,13 +19,9 @@ class AuthCubit extends Cubit<AuthState> {
       (error) {
         emit(AuthError(error));
       },
-      (userModel) {
+      (userModel) async {
         UserData.userModel = userModel;
-
-        Hive.box<MedicationReminder>('medications').clear();
-        final notificationService = sl<NotificationService>();
-        notificationService.cancelAllNotifications();
-
+        await sl<UserSessionService>().setupUserSession();
         emit(AuthSuccess("Login In Successfully"));
       },
     );
@@ -57,7 +51,8 @@ class AuthCubit extends Cubit<AuthState> {
 
     final result = await _authRepo.logoutUser();
 
-    result.fold((error) => emit(AuthError(error)), (success) {
+    result.fold((error) => emit(AuthError(error)), (success) async {
+      await sl<UserSessionService>().clearUserSession();
       UserData.userModel = null;
       emit(AuthLoggedOut(success));
     });
@@ -67,8 +62,9 @@ class AuthCubit extends Cubit<AuthState> {
     if (state is AuthLoading) return;
     emit(AuthLoading());
     final result = await _authRepo.loginWithGoogle();
-    result.fold((error) => emit(AuthError(error)), (userModel) {
+    result.fold((error) => emit(AuthError(error)), (userModel) async {
       UserData.userModel = userModel;
+      await sl<UserSessionService>().setupUserSession();
       emit(AuthSuccess("Google Login Successful"));
     });
   }
