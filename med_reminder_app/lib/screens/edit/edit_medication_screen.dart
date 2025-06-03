@@ -35,6 +35,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   DateTime? endDate;
   int repeatEveryXDays = 1;
   final bool isSynced = false;
+  bool _isSaving = false;
 
   Future<void> _pickTime() async {
     final colorScheme = Theme.of(context).colorScheme;
@@ -121,6 +122,12 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   }
 
   void _submit() async {
+    if (_isSaving) return;
+
+    setState(() {
+      _isSaving = true;
+    });
+
     repeatEveryXDays = int.tryParse(repeatController.text.trim()) ?? 1;
     if (formKey.currentState!.validate()) {
       if (times.isEmpty || startDate == null) {
@@ -133,6 +140,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             backgroundColor: AppColors.primaryColor,
           ),
         );
+        setState(() {
+          _isSaving = false;
+        });
         return;
       }
     }
@@ -170,6 +180,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       ),
     );
     Navigator.of(context).pop();
+
+    setState(() {
+      _isSaving = false;
+    });
   }
 
   void _delete() async {
@@ -325,7 +339,10 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 const HeightSpace(10),
                 Divider(),
                 const HeightSpace(10),
-                PrimaryButtonWidget(onPressed: _submit, buttonText: "Save"),
+                PrimaryButtonWidget(
+                  onPressed: _isSaving ? null : _submit,
+                  buttonText: _isSaving ? "Saving..." : "Save",
+                ),
                 const HeightSpace(10),
                 PrimaryOutlinedButtonWidget(
                   onPressed: _delete,

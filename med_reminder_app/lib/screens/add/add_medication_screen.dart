@@ -34,6 +34,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   DateTime? endDate;
   int repeatEveryXDays = 1;
   final bool isSynced = false;
+  bool _isSaving = false;
 
   Future<void> _pickTime() async {
     final colorScheme = Theme.of(context).colorScheme;
@@ -120,6 +121,12 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   }
 
   void _submit() async {
+    if (_isSaving) return;
+
+    setState(() {
+      _isSaving = true;
+    });
+
     repeatEveryXDays = int.tryParse(repeatController.text.trim()) ?? 1;
     if (formKey.currentState!.validate()) {
       if (times.isEmpty || startDate == null) {
@@ -132,6 +139,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             ),
           ),
         );
+        setState(() {
+          _isSaving = false;
+        });
         return;
       }
       List<String> formattedTimes =
@@ -173,6 +183,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       if (!mounted) return;
       Navigator.pop(context);
     }
+
+    setState(() {
+      _isSaving = false;
+    });
   }
 
   @override
@@ -296,7 +310,10 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 const HeightSpace(10),
                 Divider(),
                 const HeightSpace(10),
-                PrimaryButtonWidget(onPressed: _submit, buttonText: "Save"),
+                PrimaryButtonWidget(
+                  onPressed: _isSaving ? null : _submit,
+                  buttonText: _isSaving ? "Saving..." : "Save",
+                ),
               ],
             ),
           ),
