@@ -232,14 +232,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               buttonText: 'Sync Data',
               onPressed: () async {
                 final syncService = sl<SyncService>();
-
                 final hasNet = await syncService.hasInternet();
+
+                final uid = FirebaseAuth.instance.currentUser?.uid;
                 if (!hasNet) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
                           'No internet connection. Sync failed.',
+                          style: TextStyle(color: AppColors.whiteColor),
+                        ),
+                        backgroundColor: AppColors.primaryColor,
+                      ),
+                    );
+                  }
+                }
+
+                if (uid == null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Please login first. Sync failed.',
                           style: TextStyle(color: AppColors.whiteColor),
                         ),
                         backgroundColor: AppColors.primaryColor,

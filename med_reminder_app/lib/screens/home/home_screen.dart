@@ -55,6 +55,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: AppColors.whiteColor)),
+        backgroundColor: AppColors.primaryColor,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,10 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
-
         backgroundColor: AppColors.primaryColor,
         centerTitle: true,
-        //automaticallyImplyLeading: false,
         title: Text(
           "Medication Reminder",
           style: AppStyles.primaryHeadLinesStyle.copyWith(
@@ -95,26 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthLoggedOut) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.message,
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                backgroundColor: AppColors.primaryColor,
-              ),
-            );
+            _showSnackBar(context, state.message);
             GoRouter.of(context).go(AppRoutes.loginScreen);
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.message,
-                  style: TextStyle(color: AppColors.whiteColor),
-                ),
-                backgroundColor: AppColors.primaryColor,
-              ),
-            );
+            _showSnackBar(context, state.message);
           }
         },
         child: ValueListenableBuilder<Box<MedicationReminder>>(
@@ -123,138 +114,152 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, Box<MedicationReminder> box, _) {
             final meds = box.values.where((r) => !r.isDeleted).toList();
             if (meds.isEmpty) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 100),
-                  child: Text(
-                    "No medication reminders yet.",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 20.sp,
-                    ),
-                  ),
-                ),
-              );
+              return _buildEmptyState(context);
             }
-            return ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                ...meds.map(
-                  (med) => GestureDetector(
-                    onTap: () {
-                      GoRouter.of(
-                        context,
-                      ).pushNamed(AppRoutes.editMedicationScreen, extra: med);
-                    },
-                    child: Card(
-                      color: Theme.of(context).colorScheme.surface,
-                      shadowColor: AppColors.primaryColor,
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                SvgPicture.asset(
-                                  AppAssets.medicineSVGIcon,
-                                  height: 60.h,
-                                  width: 60.w,
-                                  fit: BoxFit.contain,
-                                ),
-                                const WidthSpace(30),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const HeightSpace(6),
-                                      Text(
-                                        med.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(fontSize: 25),
-                                      ),
-                                      const HeightSpace(6),
-                                      Text(
-                                        "Start: ${med.startDate.toString().split(' ')[0]}",
-                                        style: AppStyles.black15BoldStyle
-                                            .copyWith(color: Colors.grey[700]),
-                                      ),
-                                      const HeightSpace(3),
-                                      Text(
-                                        "End:   ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
-                                        style: AppStyles.black15BoldStyle
-                                            .copyWith(color: Colors.grey[700]),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const HeightSpace(6),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              children:
-                                  med.times.map((time) {
-                                    return Chip(
-                                      label: Text(
-                                        parseTimeOfDay(time)?.format(context) ??
-                                            time,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelLarge?.copyWith(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.onSurface,
-                                          fontSize: 20.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.primary.withAlpha(128),
-                                    );
-                                  }).toList(),
-                            ),
-                            const HeightSpace(6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Repeat every: ${med.repeatDays} day(s)",
-                                  style: AppStyles.black15BoldStyle.copyWith(
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.sync,
-                                  color:
-                                      med.isSynced ? Colors.green : Colors.red,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                            const HeightSpace(6),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const HeightSpace(30),
-              ],
-            );
+            return _buildMedicationList(context, meds);
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 100),
+        child: Text(
+          "No medication reminders yet.",
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 20.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMedicationList(
+    BuildContext context,
+    List<MedicationReminder> meds,
+  ) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        ...meds.map((med) => _buildMedicationCard(context, med)),
+        const HeightSpace(30),
+      ],
+    );
+  }
+
+  Widget _buildMedicationCard(BuildContext context, MedicationReminder med) {
+    return GestureDetector(
+      onTap: () {
+        GoRouter.of(
+          context,
+        ).pushNamed(AppRoutes.editMedicationScreen, extra: med);
+      },
+      child: Card(
+        color: Theme.of(context).colorScheme.surface,
+        shadowColor: AppColors.primaryColor,
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildMedicationHeader(context, med),
+              const HeightSpace(6),
+              _buildTimeChips(context, med),
+              const HeightSpace(6),
+              _buildMedicationFooter(context, med),
+              const HeightSpace(6),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMedicationHeader(BuildContext context, MedicationReminder med) {
+    return Row(
+      children: [
+        SvgPicture.asset(
+          AppAssets.medicineSVGIcon,
+          height: 60.h,
+          width: 60.w,
+          fit: BoxFit.contain,
+        ),
+        const WidthSpace(30),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const HeightSpace(6),
+              Text(
+                med.name,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontSize: 25),
+              ),
+              const HeightSpace(6),
+              Text(
+                "Start: ${med.startDate.toString().split(' ')[0]}",
+                style: AppStyles.black15BoldStyle.copyWith(
+                  color: Colors.grey[700],
+                ),
+              ),
+              const HeightSpace(3),
+              Text(
+                "End:   ${med.endDate != null ? med.endDate!.toString().split(' ')[0] : 'N/A'}",
+                style: AppStyles.black15BoldStyle.copyWith(
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeChips(BuildContext context, MedicationReminder med) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children:
+          med.times.map((time) {
+            return Chip(
+              label: Text(
+                parseTimeOfDay(time)?.format(context) ?? time,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withAlpha(128),
+            );
+          }).toList(),
+    );
+  }
+
+  Widget _buildMedicationFooter(BuildContext context, MedicationReminder med) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Repeat every: ${med.repeatDays} day(s)",
+          style: AppStyles.black15BoldStyle.copyWith(color: Colors.grey[700]),
+        ),
+        Icon(
+          Icons.sync,
+          color: med.isSynced ? Colors.green : Colors.red,
+          size: 20,
+        ),
+      ],
     );
   }
 }

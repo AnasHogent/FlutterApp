@@ -173,23 +173,43 @@ class NotificationService {
     }
 
     try {
-      await _plugin.zonedSchedule(
-        reminder.id.hashCode + index,
-        'Time to take ${reminder.name}',
-        "Don't forget to take your medication",
-        scheduledDate,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'med_channel',
-            'Medication Reminders',
-            channelDescription: 'Reminders to take your medication',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
+      final startDateTime = tz.TZDateTime.from(reminder.startDate, tz.local);
+      final endDateTime =
+          reminder.endDate != null
+              ? tz.TZDateTime.from(reminder.endDate!, tz.local)
+              : startDateTime.add(const Duration(days: 365));
+
+      final daysBetween = endDateTime.difference(startDateTime).inDays;
+
+      for (int i = 0; i <= daysBetween; i++) {
+        if (i % reminder.repeatDays == 0) {
+          final scheduledTime = scheduledDate.add(Duration(days: i));
+          if (scheduledTime.isBefore(startDateTime) ||
+              scheduledTime.isAfter(endDateTime)) {
+            continue;
+          }
+
+          await _plugin.zonedSchedule(
+            reminder.id.hashCode + index + (i * 1000),
+            'Time to take ${reminder.name}',
+            "Don't forget to take your medication",
+            scheduledTime,
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'med_channel',
+                'Medication Reminders',
+                channelDescription: 'Reminders to take your medication',
+                importance: Importance.high,
+                priority: Priority.high,
+                enableLights: true,
+                enableVibration: true,
+                playSound: true,
+              ),
+            ),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          );
+        }
+      }
     } catch (e) {
       debugPrint('Error scheduling ${reminder.name} at $hour:$minute: $e');
     }
